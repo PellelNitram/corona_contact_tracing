@@ -20,18 +20,21 @@ for t in tqdm(range(time_start, time_end+1)):
     pair_distances = pdist(current_data[["x","y"]], "euclidean")
     
     # use square form of pairwise distances and add diagonal to it, to avoid self matches
-    con = np.argwhere(squareform(pair_distances)+np.eye(squareform(pair_distances).shape[0]) == 0)
+    con = np.argwhere(squareform(pair_distances) + np.eye(squareform(pair_distances).shape[0]) == 0)[0]
     # derive contact and add it to contacts
-    contact = pd.DataFrame({"agent_a": con[0][0],
-                            "agent_b": con[0][1],
+    current_agent_a = current_data[current_data["agent"] == con[0]]
+    current_agent_b = current_data[current_data["agent"] == con[1]]
+    contact = pd.DataFrame({"agent_a": con[0],
+                            "agent_b": con[1],
                             "t": t,
-                            "x": current_data[current_data["agent"] == con[0][1]]["x"].item(),
-                            "y": current_data[current_data["agent"] == con[0][1]]["y"].item(),
-                            "agent_a_state": None,
-                            "agent_b_state": None,}, index=[0])
+                            "x": current_agent_a["x"].item(),
+                            "y": current_agent_a["y"].item(),
+                            "agent_a_state": current_agent_a["state"].item(),
+                            "agent_b_state": current_agent_b["state"].item(),},
+                            index=[0])
     contacts = pd.concat([contacts, contact])
 
-# sort table of ids by number of contacts
+# sort/create table of ids by number of contacts with infected people
 print(contacts)
 
-
+# 
