@@ -15,6 +15,7 @@ number_of_agents = len(set(data["agent"]))
 contacts = pd.DataFrame(columns=["agent_a", "agent_b", "t", "x", "y", "agent_a_state", "agent_b_state"])
 
 # iterate over time
+print("find all first order contacts")
 for t in tqdm(range(time_start, time_end+1)):
     # filter for time and find pairwise distances
     current_data = data[data["t"]==t]
@@ -33,6 +34,7 @@ for t in tqdm(range(time_start, time_end+1)):
                             "agent_a_state": current_agent_a["state"].item(),
                             "agent_b_state": current_agent_b["state"].item(),},
                             index=[0])
+                            # TODO: It could make sense to add the AB pair as well as the reversed BA pair. In this situation, both columns agent_a and agent_b hold all agents.
     contacts = pd.concat([contacts, contact])
 
 # sort/create table of ids by number of contacts with infected people
@@ -48,11 +50,34 @@ for ac in all_contacts_of_sicks:
     contact_counts[ac] += 1
 
 # reformat as dataframe
-contact_counts = pd.DataFrame(data={"agent": range(number_of_agents), "contact_counts": contact_counts}).sort_values(by="contact_counts", ascending=False)
+contact_counts = pd.DataFrame(data={"agent": range(number_of_agents),
+                                    "contact_counts": contact_counts,
+                                    "secondary_contact_counts": None}).sort_values(by="contact_counts",
+                                                ascending=False)
 
 print(contact_counts)
 
 
 # contacts of contacts
 # TODO: Use contacts to second order contact count
+print("find second order contacts")
+for t in tqdm(range(time_start, time_end+1)):
+    secondary_contact_counts = [0] * number_of_agents
+    for index, row in contact_counts.iterrows():
+        current_agent = row["agent"]
+        # previous contacts of current_agent have to be unknown/susceptible, otherwise we cannot infect them.
+        contacts_a = contacts[(contacts["t"] <= t) & (contacts["agent_a"]==current_agent) & (contacts["agent_b_state"]<=1)]
+        contacts_b = contacts[(contacts["t"] <= t) & (contacts["agent_b"]==current_agent) & (contacts["agent_a_state"]<=1)]
 
+        
+        all_secondary_contacts = list(contacts_a["agent_b"]) + list(contacts_b["agent_a"])
+        for sc in all_secondary_contacts:
+            secondary_contact_counts[sc] += 1
+    # print(secondary_contact_counts)
+
+# TODO: put this into a nice data frame, but this is time dependend data
+# contact_counts.assign(secondary_contact_counts = pd.Series(secondary_contact_counts).values)
+
+
+
+# IDEA: view agents as nodes and contacts as edges -> graph. Analyse graph who to limit infection
