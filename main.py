@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
+from scipy.spatial import KDTree
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
@@ -34,6 +35,10 @@ for t in tqdm(range(time_start, time_end+1)):
     current_data = data[data["t"]==t]
     pair_distances = pdist(current_data[["x","y"]], "euclidean")
 
+    # wip accelerated data structure
+    kdtree = KDTree(current_data[["x","y"]])
+    kdtree.query_ball_point([6,10],r=.5)
+
     try:
         # use square form of pairwise distances and add diagonal to it, to avoid self matches
         con = np.argwhere(squareform(pair_distances) + np.eye(squareform(pair_distances).shape[0]) == 0)[0]
@@ -52,6 +57,24 @@ for t in tqdm(range(time_start, time_end+1)):
         contacts = pd.concat([contacts, contact])
     except IndexError as e:
         pass
+
+# Work in Progress!
+# create matrices in numpy
+beta = 0.05 # this is a guess of beta
+infection_matrix = np.array([[0,0,0],[beta,0,0],[0,0,0]])
+
+gamma = 0.04 # this is a guess of gamma
+health_transition = np.array([[1,0,0],[0, 1-gamma, gamma],[0,0,1]])
+
+# adjacency matrix from contacts
+for t in tqdm(range(time_start, time_end+1)):
+    adjacency_matrix = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
+    # build the whole adjacency_matrix
+
+
+
+
+
 
 # sort/create table of ids by number of contacts with infected people
 # if one agent, a or b, is state==2, increase count for the other
