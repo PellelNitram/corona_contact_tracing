@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from utils import AGENT_STATES
 
@@ -72,6 +73,12 @@ contact_counts = pd.DataFrame(data={"agent": range(number_of_agents),
 
 print(contact_counts)
 
+# Plot histogram of first-contact-person counts
+fig, ax = plt.subplots(1, 1)
+contact_counts['contact_counts'].hist(ax=ax)
+ax.set_xlabel('contact counts')
+ax.set_title('histogram of contact counts')
+plt.show()
 
 # contacts of contacts
 # TODO: Use contacts to second order contact count
