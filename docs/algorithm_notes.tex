@@ -75,17 +75,17 @@ As the health state of the entire population is unknown, we use graph convolutio
 		\begin{equation}
 			I =
 			\begin{pmatrix}
-				0 & p_a & 0 \\
-				0 &  0  & 0 \\
-				0 & p_r & 0
+				0   &  0  & 0 \\
+				p_a &  0  & p_r \\
+				0   &  0  & 0
 			\end{pmatrix}
 		\end{equation}
-		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $p_a$ denotes the probability of infection  after contact (also known as attack rate). $p_r = 0$ models the probability of being reinfected.
-		\item $\hat{A}$, with $\hat{A}_{ij}\in \{0, 1\}$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
+		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $p_a$ denotes the probability of infection  after contact (also known as attack rate). $p_r := 0$ models the probability of being reinfected, which we assume to be zero based upon medical research.
+		\item $\hat{A}$, with $\hat{A}_{ij}\in [0, 1]$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
 		\begin{equation}
 			\hat{A}_{ij} = A_{ij}\cdot \frac{I_{\indexOfState{i}, \indexOfState{j}} + I_{\indexOfState{j}, \indexOfState{i}}}{p_a}
 		\end{equation}
-		with $\indexOfState{k}$ as index of the state of agent $k$ in order to access the elements from $I$. The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $p_a$ normalises the factor to one to ensure $\hat{A}_{ij} \in \{0, 1\}$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$.
+		with $\indexOfState{k}$ as index of the state of agent $k$ in order to access the elements from $I$. The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $p_a$ normalises the factor to one to ensure $\hat{A}_{ij} \in [0, 1]$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$.
 	\end{itemize}
 	\item The feature matrix, $H^{(t)}$, consists of all agents' features at time $t$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A three dimensional feature space is used, $D=3$, modelling the three possible health states. The unit vectors of this space are interpreted as following:
 	\begin{itemize}
@@ -98,27 +98,34 @@ As the health state of the entire population is unknown, we use graph convolutio
 	\begin{itemize}
 		\item A susceptible person always stays susceptible (unless their is a vaccine, which we do not model)
 		\item A infected person has a probability $\gamma$ called recovery rate to recover. The remaining probability $1-\gamma$ means that the person stays sick.
-		\item A recovered person could habe a probability to be re-infected, but we assume this to be zero. Thus a recovered person always stays recovered.
+		\item A recovered person could have a probability to be re-infected, but we assume this to be zero. Thus a recovered person always stays recovered.
 	\end{itemize}
 	Thus or transition matrix $T$ is:
 	\begin{equation}
 		T = 
 		\begin{pmatrix}
-			1 &     0    & 0 \\
+			1 &     0    & 0      \\
 			0 & 1-\gamma & \gamma \\
-			0 &     0    & 1 \\
+			0 &     0    & 1      \\
 		\end{pmatrix}
 	\end{equation}
-	The update rule thus becomes:
+	The update rule based on the health status thus becomes:
 	\begin{equation}
 		H^{(t+1)} = H^{(t)} T
 	\end{equation}
 
-	\item TODO: Open modeling aspects:
-	\begin{itemize}
-		\item Normalize H to 1 (softmax)
-		 
-	\end{itemize}
+	The full update formula thus is:
+	\begin{equation}
+		h_{v_{i,m}}^{(l+1)}
+		 = 
+		\underbrace{
+			\sum_{j \in \hat{A}^{(l)}(i)} h^{(l)}_{v_{j,m}}
+		}_{\text{graph}} +
+		\underbrace{
+			(h^{(l)}_{v_{i}} \cdot T)_m 
+		}_{\text{temporal}}
+	\end{equation}
+	where $l$ is the time step, $m \in D$ is the health state, $v_i$ is a node, $v_j$ is a connected node and $\hat{A}$ is the infection relevant adjacency matrix.
 \end{itemize}
 
 \subsection{Disease Spread Reduction with Minimal Intervention}
@@ -135,9 +142,9 @@ All non pharmaceutical interventions (NPI) can be understood as some kind of edg
 In the following we discuss different techniques to calculate the minimal set of edge removals which reduces the $R_0$ value of the pandemic below $1$.
 $R_0$ models how many people are infected by a single infected person.
 It is crucial to constrain $R_0$ below zero to avoid exponential growth in the number of infected individuals.
-$R_0$ can be derived from the ratio of $H^{(t+1)}$ and $H^{(t)}$:
+$R_0$ can be derived from the ratio of infected people of $H^{(t+1)}$ and of $H^{(t)}$:
 \begin{equation}
-	R_0 = \frac{H^{(t+1)}}{H^{(t)}} #TODO betrag
+	R_0 = \frac{\norm{H^{(t+1)}\mid_{m=1}}_{0}}{\norm{H^{(t)}\mid_{m=1}}_{0}} %#TODO betrag
 \end{equation}
 
 The square matrix $C$ with dimensions $N \times N$ models desirable edge cancellations.
@@ -146,7 +153,7 @@ It is multiplied element-wise onto the adjacency matrix $A$, thus $\bar{A} = A \
 
 To optimally limit the spread of the disease, we seek to minimize the number of cancellations $\norm{C}_0$, given that $R_0$ is below zero:
 \begin{equation}
-	\min_{C} \norm{C}_0\text{, s.t. }R_0 < 1
+	\max{C} \norm{C}_0\text{, s.t. }R_0 < 1
 \end{equation}
 
 TODO: Derive an expanded statement from the above formulation.\\
