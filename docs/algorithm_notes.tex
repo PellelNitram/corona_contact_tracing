@@ -21,10 +21,13 @@
 \usepackage[nodayofweek]{datetime}
 \usepackage[inline]{enumitem}
 \usepackage{url}
+\usepackage{todonotes}
+\usepackage{biblatex}
+\addbibresource{bibliography.bib}
 
 %opening
 \title{Corona Contact Tracing}
-\author{TODO}
+\author{Martin, Leonard, Thomas, Matthias}
 
 \newcommand{\indexOfState}[1]{\texttt{indOfState}(#1)}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
@@ -62,15 +65,34 @@ We think of partially infected population as a graph, where each individual (or 
 Edges of this graph model contacts of two agents.
 As the health state of the entire population is unknown, we use graph convolution, as explained below, to update our assumptions on the current health state of all individuals.
 
+The definition of a graph convolution~\cite{Kipf2017SemiSupervisedCW} for here is
+
+\begin{equation}
+	h_{v_i}^{(l+1)} = \sum_{j\in A(i)} h_{v_j}^{(l)}
+\end{equation}
+
+with feature vector $h$ of node $i$ from iteration $(l)$ to $(l+1)$. This formulation is equivalent to $h^{(l+1)} = A h^{(l)}$ with $A$ as adjacency matrix without diagonal elements as shown in section \ref{sec:consistency}.
+
+Our main propagation rule is based on the definition of a graph convolution and reads component wise as follows
+\begin{equation}
+	h_{v_i, m}^{(l+1)}
+	=
+	\underbrace{
+		\sum_k \frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}} h_{k, m}^{(l)} \textcolor{blue}{\delta_{m, e_I}}
+	}_{\text{Graph}}
+	+
+	\underbrace{
+		(h_{v_i}^{(l)}\cdot T)_m
+	}_{\text{Temporal}}
+\end{equation}
+
+This propagation rule is based on the following aspects:
+
 \begin{itemize}
-	\item Graph convolution:
-	\begin{equation}
-		h_{v_i}^{(l+1)} = softmax(\sum_{j\in \hat{A}(i)} h_{v_j}^{(l)})
-	\end{equation}
-	with $\hat{A}(i)$ the infection-weighted neighbors of node $v_i$ as derived from the infection-weighted neighbors adjacency matrix $\hat{A}$.
-	\item $\hat{A}$ is constructed from $A$ and $I$ which are the regular adjacency matrix and the infection matrix, respectively.
+	\item \todo[inline]{give setting about graph and temporal parts.} \todo[inline]{only I-component to be included in graph part as shown in blue.}
+	\item $\hat{A}$ is constructed from $A$ and $I$ which are the regular continuous adjacency matrix and the infection matrix, respectively.
 	\begin{itemize}
-		\item The adjacency matrix $A$ is time dependent, $A^{(t)}$, and inferred from data. In our use case, $A_{ij}=1$ if nodes $v_i$ and $v_j$, hence persons $i$ and $j$, have been in contact. This corresponds to $dist(v_i, v_j) \le \epsilon$ with $\epsilon=0$ in the discrete case that we consider here.
+		\item The adjacency matrix $A$ is time dependent, $A^{(l)}$, and inferred from data. In our use case, $A_{ij} \propto dist(v_i, v_j)$, hence $A_{ij}$ is large when persons $i$ and $j$ have been in \todo{Think about that!}contact.
 		\item The infection matrix is constructed as
 		\begin{equation}
 			I =
@@ -83,18 +105,21 @@ As the health state of the entire population is unknown, we use graph convolutio
 		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $\beta$ denotes the probability of infection  after contact (also known as attack rate). $\alpha := 0$ models the probability of being reinfected, which we assume to be zero based upon medical research.
 		\item $\hat{A}$, with $\hat{A}_{ij}\in [0, 1]$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
 		\begin{equation}
-			\hat{A}_{ij} = A_{ij}\cdot \frac{I_{\indexOfState{i}, \indexOfState{j}} + I_{\indexOfState{j}, \indexOfState{i}}}{p_a}
+			\hat{A}_{ij} = A_{ij}\cdot \frac{ v_1^T I v_2 + v_2^T I v_1 }{\beta}.
 		\end{equation}
-		with $\indexOfState{k}$ as index of the state of agent $k$ in order to access the elements from $I$. The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $p_a$ normalises the factor to one to ensure $\hat{A}_{ij} \in [0, 1]$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$.
+		The weighted scalar product of the health states of to agents $i$ and $j$ is used to evaluate whether the edge is necessary. 
+		Only when a infected person and a susceptible have contact, the edge A_{ij} should be considered, otherwise it should be dropped.
+		
+		The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $\beta$ normalises the factor to one to ensure $\hat{A}_{ij} \in [0, 1]$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$. Note that the fraction has the desired properties for pure $S$-, $I$- and $R$-persons.
 	\end{itemize}
-	\item The feature matrix, $H^{(t)}$, consists of all agents' features at time $t$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A three dimensional feature space is used, $D=3$, modelling the three possible health states. The unit vectors of this space are interpreted as following:
+	\item The feature matrix, $h^{(l)}$, consists of all agents' features at time $l$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A three dimensional feature space is used, $D=3$, modeling the three possible health states. The unit vectors of this space are interpreted as following:
 	\begin{itemize}
 		\item $\vec{e}_0$: susceptible state
 		\item $\vec{e}_1$: infected state
 		\item $\vec{e}_2$: recovered state
 	\end{itemize}
 	A uniform distribution over these possible states expresses complete uncertainty of the health state of an agent.
-	\item The transition of a persons' health state $H^{(t)}$ is determined by the following assumptions:
+	\item The transition of a persons' health state $h^{(l)}$ is determined by the following assumptions:
 	\begin{itemize}
 		\item A susceptible person always stays susceptible (unless their is a vaccine, which we do not model)
 		\item A infected person has a probability $\gamma$ called recovery rate to recover. The remaining probability $1-\gamma$ means that the person stays sick.
@@ -109,23 +134,10 @@ As the health state of the entire population is unknown, we use graph convolutio
 			0 &     0    & 1      \\
 		\end{pmatrix}
 	\end{equation}
-	The update rule based on the health status thus becomes:
+	The temporal update rule based on the health status thus becomes:
 	\begin{equation}
 		H^{(t+1)} = H^{(t)} T
 	\end{equation}
-
-	The full update formula thus is:
-	\begin{equation}
-		h_{v_{i,m}}^{(l+1)}
-		 = 
-		\underbrace{
-			normalization \cdot \sum_{j \in \hat{A}^{(l)}(i)} h^{(l)}_{v_{j,m}}
-		}_{\text{graph}} +
-		\underbrace{
-			(h^{(l)}_{v_{i}} \cdot T)_m 
-		}_{\text{temporal}}
-	\end{equation}
-	where $l$ is the time step, $m \in D$ is the health state, $v_i$ is a node, $v_j$ is a connected node and $\hat{A}$ is the infection relevant adjacency matrix.
 \end{itemize}
 
 \subsection{Disease Spread Reduction with Minimal Intervention}
@@ -157,7 +169,7 @@ It is multiplied element-wise onto the adjacency matrix $A$, thus $\bar{A} = A \
 
 To optimally limit the spread of the disease, we seek to minimize the number of cancellations $\norm{C}_0$, given that $R_0$ is below zero:
 \begin{equation}
-	\max{C} \norm{C}_0\text{, s.t. }R_0 < 1
+	\max_{C} \norm{C}_0\text{, s.t. }R_0 < 1
 \end{equation}
 
 TODO: Derive an expanded statement from the above formulation.\\
@@ -176,5 +188,56 @@ A test reveals the true health state of an individual (ignoring false negatives 
 
 The test assignment $T$ with dimension $N$ is a binary variable describing which individuals should be tested.
 
+\section{Appendix}
+
+\subsection{Consistency of notations}
+\label{sec:consistency}
+
+Using the notation from the blog and the paper, including $H'\in\mathbb{R}^{N\times D}$, $A\in\mathbb{R}^{N\times N}$, $H\in\mathbb{R}^{N\times D}$, the propagation rule is:
+
+\begin{equation}
+	H' = A H
+\end{equation}
+
+is equivalent to
+
+\begin{equation}
+	\begin{split}
+		H'_{v_i, m} & = \sum_l \overbrace{A_{v_i, l}}^{\in \{0, 1\}} H_{l, m} \\
+		            & = \sum_{l'} H_{l',m}
+	\end{split}
+\end{equation}
+
+where $l'$ takes all $A_{v_i,l}=1$, i.e. neighbours, into account.
+
+Hence, I do understand that the notations are equal.
+
+\subsection{Formulate normalisation}
+
+Use from ICLR 2017 paper the normalisation $D_{ii} = \sum_j \hat{A}_{ij}$.
+
+Use the knowledge from the blog post to write:
+
+\begin{equation}
+	\begin{split}
+		\overbrace{H'}^{\in \mathbb{R}^{N\times D}} 
+			& = \overbrace{D^{-1}}^{\in\mathbb{R}^{N\times N}} \overbrace{\hat{A}}^{\in \mathbb{R}^{N\times N}} \overbrace{H}^{\in\mathbb{R}^{N\times D}}
+			\Leftrightarrow H'_{v_i, m} = \sum_k \overbrace{D^{-1}_{v_i,k}}^{=D_{v_i,v_i}, \delta_{v_i, k}} (\hat{A} H)_{km} \\
+		& = D^{-1}_{v_i, v_i} (\hat{A} H)_{v_i, m} = D^{-1}_{v_i, v_i} \sum_k \hat{A}_{v_i, k} H_{k, m} = \sum_k \underbrace{\frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}}}_{\text{normalised}} H_{k, m}.
+	\end{split}
+\end{equation}
+
+The weighting by the adjacency matrix is, indeed, normalised to its column sums.
+
+Note that this part is also normalised:
+
+\begin{equation}
+\begin{split}
+	\sum_m H'_{v_i, m} & = \sum_m \sum_k \frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}} H_{k, m} \\
+	& = \sum_k \frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}} \underbrace{\sum_m H_{k,m}}_{=1\text{, per construction}} = 1
+\end{split}
+\end{equation}
+
+\printbibliography{}
 
 \end{document}
