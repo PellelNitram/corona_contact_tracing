@@ -12,7 +12,7 @@ from utils import AGENT_STATES
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('-dp', '--data-path', default="datadumps/simulation.csv", type=str, help='Path to data')
+parser.add_argument('-dp', '--data-path', default="datadumps/SimulationData_2020-03-21_23_41_57.csv", type=str, help='Path to data')
 args = parser.parse_args()
 
 data_path = args.data_path
@@ -75,11 +75,14 @@ for t in tqdm(range(time_start, time_end+1)):
     for adj in adjacencies:
         adj_matrix[adj[0],adj[1]] += 1
 
-    infection_adj_matrix = adj_matrix * (np.matmul(np.matmul(H_prev, infection_matrix),H_prev.T) + 0) / beta
+    # equation 4 BUG: this does not actually implement equation 4
+    infection_adj_matrix = adj_matrix * (np.matmul(np.matmul(H_prev, infection_matrix),H_prev.T) + np.matmul(np.matmul(H_prev, infection_matrix),H_prev.T)) / beta
     
+    # temporal
     H_temporal = np.matmul(H,health_transition)
 
-    H_graph = np.matmul(adj_matrix, H_prev)/np.expand_dims(H_prev.sum(axis=1), axis=1)
+    # graph BUG: this is missing the kroecker delta
+    H_graph = np.matmul(infection_adj_matrix, H_prev) / np.expand_dims(infection_adj_matrix.sum(axis=1), axis=1)
 
     H_new = H_graph + H_temporal
     H_prev = H_new
