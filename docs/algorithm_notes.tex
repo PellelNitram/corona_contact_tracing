@@ -1,0 +1,46 @@
+\documentclass[]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+%opening
+\title{TODO}
+\author{TODO}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Algorithm notes}
+
+\begin{itemize}
+	\item Graph convolution:
+	\begin{equation}
+		h_{v_i}^{(l+1)} = softmax(\sum_{j\in N_i} h_{v_j}^{(l)})
+	\end{equation}
+	with $N_i$ the infection-weighted neighbours of node $v_i$.
+	\item From $A$ and $I$ where $I$ is the infection matrix.
+	\begin{itemize}
+		\item The infection matrix as
+		\begin{equation}
+			I =
+			\begin{pmatrix}
+				0 & 0 & p_a & 0 \\
+				0 & 0 & p_a & 0 \\
+				0 & 0 &  0  & 0 \\
+				0 & 0 &  0  & 0
+			\end{pmatrix}
+		\end{equation}
+		with $I_{ij}$ so that $i$ corresponds to host and $j$ to contact person and ordering unknown, susceptible, infected, recovered. $p_a$ denotes the probability of infection (also known as attack rate) after contact.
+		\item The adjacency matrix $A$ is time dependent, $A(t)$, and inferred from data. In our use case, $A_{ij}=1$ if nodes $v_i$ and $v_j$, hence persons $i$ and $j$, have been in contact. This corresponds to $dist(v_i, v_j) \le \epsilon$ with $\epsilon=0$ in the discrete case that we consider here.
+		\item $\hat{A}$ is the adjacency matrix that takes tie infection interactions into account and is computed as follows: $\hat{A}_{ij} = A_{ij}\cdot I_{}$.
+	\end{itemize}
+	\item H matrix dfn
+	\item 
+\end{itemize}
+
+\end{document}
