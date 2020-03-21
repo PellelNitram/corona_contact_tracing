@@ -31,21 +31,24 @@ for t in tqdm(range(time_start, time_end+1)):
     current_data = data[data["t"]==t]
     pair_distances = pdist(current_data[["x","y"]], "euclidean")
 
-    # use square form of pairwise distances and add diagonal to it, to avoid self matches
-    con = np.argwhere(squareform(pair_distances) + np.eye(squareform(pair_distances).shape[0]) == 0)[0]
-    # derive contact and add it to contacts
-    current_agent_a = current_data[current_data["agent"] == con[0]]
-    current_agent_b = current_data[current_data["agent"] == con[1]]
-    contact = pd.DataFrame({"agent_a": current_agent_a["agent"].item(),
-                            "agent_b": current_agent_b["agent"].item(),
-                            "t": t,
-                            "x": current_agent_a["x"].item(),
-                            "y": current_agent_a["y"].item(),
-                            "agent_a_state": current_agent_a["state"].item(),
-                            "agent_b_state": current_agent_b["state"].item(),},
-                            index=[0])
-                            # TODO: It could make sense to add the AB pair as well as the reversed BA pair. In this situation, both columns agent_a and agent_b hold all agents.
-    contacts = pd.concat([contacts, contact])
+    try:
+        # use square form of pairwise distances and add diagonal to it, to avoid self matches
+        con = np.argwhere(squareform(pair_distances) + np.eye(squareform(pair_distances).shape[0]) == 0)[0]
+        # derive contact and add it to contacts
+        current_agent_a = current_data[current_data["agent"] == con[0]]
+        current_agent_b = current_data[current_data["agent"] == con[1]]
+        contact = pd.DataFrame({"agent_a": current_agent_a["agent"].values[0],
+                                "agent_b": current_agent_b["agent"].values[0],
+                                "t": t,
+                                "x": current_agent_a["x"].values[0], # Note: Since both agents are at the same position the
+                                "y": current_agent_a["y"].values[0], #       coordinates of agent a are chosen arbitrarily here
+                                "agent_a_state": current_agent_a["state"].values[0],
+                                "agent_b_state": current_agent_b["state"].values[0],},
+                                index=[0])
+                                # TODO: It could make sense to add the AB pair as well as the reversed BA pair. In this situation, both columns agent_a and agent_b hold all agents.
+        contacts = pd.concat([contacts, contact])
+    except IndexError as e:
+        pass
 
 # sort/create table of ids by number of contacts with infected people
 # if one agent, a or b, is state==2, increase count for the other
