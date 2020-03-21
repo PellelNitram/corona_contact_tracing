@@ -2,14 +2,13 @@ clear;
 close all;
 
 testRate = 0.1;
-numberOfAgents = 10;
-initialInfected = 3;
-numberSuperSpreaders = 0.1*numberOfAgents;
+numberOfAgents = 1000;
+initialInfected = 5;
 
 beta = 0.6;
 gamma = 0.01;
 
-gridSize = 10;
+gridSize = 100;
 grid = cell(gridSize);
 
 % generate some agents and assign them a location
