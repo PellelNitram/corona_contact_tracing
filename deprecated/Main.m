@@ -108,6 +108,10 @@ end
 
 disp(t)
 
+plot(numberOfhealthy)
+hold on;
+plot(numberOfIll)
+plot(numberOfRecovered)
 
 a = isnan(simulationData(:,1));
 simulationData(a,:) = [];

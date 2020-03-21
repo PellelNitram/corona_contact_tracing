@@ -12,8 +12,7 @@ from utils import AGENT_STATES
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('-dp', '--data-path', type=str, required=True,
-                    help='Path to data')
+parser.add_argument('-dp', '--data-path', default="datadumps/simulation.csv", type=str, help='Path to data')
 args = parser.parse_args()
 
 data_path = args.data_path
