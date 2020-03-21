@@ -1,10 +1,26 @@
+% chktex-file 46
+% !TeX spellcheck = en-US
+% !TeX encoding = utf8
+
 \documentclass[]{article}
 
+\RequirePackage{color,graphicx}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage{pdfpages}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage[american]{babel}
+\usepackage[babel=true, protrusion=alltext-nott, final]{microtype}
+\usepackage[nodayofweek]{datetime}
+\usepackage[inline]{enumitem}
+\usepackage{url}
 
 %opening
-\title{TODO}
+\title{Corona Contact Tracing}
 \author{TODO}
 
 \begin{document}
@@ -12,7 +28,22 @@
 \maketitle
 
 \begin{abstract}
+	This technical report accompanies the implementation of the corona\_contact\_tracing package found at \url{https://github.com/PellelNitram/corona_contact_tracing}.
 
+	It extends an existing stochastic SIR simulation to generate data sets suitable to simulating the current corona pandemic.
+	This simulation has full access to all agents' health status.
+	To mirror a real world scenario the health status of agents is only partially observed through tests.
+
+	Next we develop a graph convolutional approach to predict the health status of all agents in this simulation.
+	It uses past contacts as well as oberved health information to derive this prediction.
+	It is able to deal with partial data such as missing locations and missing health status, as it is a probabilistic approach.
+	
+	Lastly, this prediction can be used to derive measures to reduce the diseases' spread.
+	We propose to find a optimal trade of between removing the least amount of edges in said graph (e.g. through quarantine, social distancing, etc.) and limiting the spread of the disease.
+	% Such trade of could be found with minimal cut algorithms.
+	Opposed to classical non-pharmaceutical intervention methods such as contact tracing, our approach directly identifies the nodes with the greatest potential to accelerate the diseases' spread in the network.
+	
+	This package was created within the \#WirVsVirus Hackathon of the German government and is Work in Progress!
 \end{abstract}
 
 \section{Algorithm notes}
