@@ -1,10 +1,12 @@
 # Generated with SMOP  0.41
 import numpy as np
 import pandas as pd
-from time import time
+import datetime
 import matplotlib.pyplot as plt
 import random as rd
+import datetime
 
+now = datetime.datetime.now()
 
 def InitializeAgentStates(numberOfAgents,initialInfected):
 
@@ -62,6 +64,33 @@ def IllnessDynamics(grid,agentState,beta,gamma):
                 agentState[single]=3
     
     return agentState
+
+def PerformeRandomSteps(numberOfAgents,locations,gridSize,diffusionRates):
+
+    grid = [[[] for i in range(gridSize)] for i in range(gridSize)]
+
+    for i in range(numberOfAgents):
+        r = np.random.rand()
+        loc = np.copy(locations[i,:])
+        if r < diffusionRates[i]:
+            while np.array_equal(loc,locations[i,:]):
+                direction = np.random.randint(4)
+                if direction == 0:
+                    loc[0] = min(max(0,loc[0] + 1),gridSize-1)
+                elif direction == 1:
+                    loc[0]=min(max(0,loc[0] - 1),gridSize-1)
+                elif direction == 2:
+                    loc[1]=min(max(0,loc[1] + 1),gridSize-1)
+                elif direction == 3:
+                    loc[1]=min(max(0,loc[1] - 1),gridSize-1)
+
+        locations[i,:]=loc
+        grid[loc[0]][loc[1]].append(i)
+
+    grid_ = pd.DataFrame(grid)
+    return grid_, locations
+
+
 
 def PerformeSteps(numberOfAgents,locations,gridSize,diffusionRates):
     def calculate_coordinates_circle_walk(xOld, yOld, x0, y0, gridSize):
@@ -135,7 +164,7 @@ agentBehaviour = InitializeAgentBehaviour(numberOfAgents, mobilityRate)
 
 # save agent master information
 AgentMaster = pd.DataFrame({'agent': agentIds, 'state': agentState, 'diffusion_rate': diffusionRates, 'behaviour' : agentBehaviour})
-AgentMaster.to_csv('AgentMaster.csv', index=False)
+AgentMaster.to_csv('./datadumps/AgentMaster_{}.csv'.format(now.strftime("%Y-%m-%d_%H:%M:%S")), index=False)
 
 # Initialize empty grid and fill with agents based on location
 grid = [[[] for i in range(gridSize)] for i in range(gridSize)]
@@ -174,7 +203,7 @@ while numberOfIll[t] > 0:
     agentState = IllnessDynamics(grid_,agentState,beta,gamma)
     
     # Update step
-    grid_, locations = PerformeSteps(numberOfAgents,locations,gridSize,diffusionRates)
+    grid_, locations = PerformeRandomSteps(numberOfAgents,locations,gridSize,diffusionRates)
     
     # Perform tests for virus
     agentStateTested = agentState + testedAgents
@@ -229,7 +258,7 @@ numberOfIll = numberOfIll[~np.isnan(numberOfIll)]
 numberOfRecovered = numberOfRecovered[~np.isnan(numberOfRecovered)]
 
 SimulationData = pd.DataFrame({'agent':simulationData[:,0].astype(int),'x':simulationData[:,1].astype(int), 'y':simulationData[:,2].astype(int), 't':simulationData[:,3].astype(int),'state':simulationData[:,4].astype(int)})
-SimulationData.to_csv('SimulationData.csv', index=False)
+SimulationData.to_csv('./datadumps/SimulationData_{}.csv'.format(now.strftime("%Y-%m-%d_%H:%M:%S")), index=False)
 
 plt.plot(numberOfhealthy, label="susceptibles")
 plt.plot(numberOfIll, label="infected")
