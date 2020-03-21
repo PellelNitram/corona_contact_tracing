@@ -58,29 +58,6 @@ for t in tqdm(range(time_start, time_end+1)):
     except IndexError as e:
         pass
 
-# Work in Progress!
-# create matrices in numpy
-beta = 0.05 # this is a guess of beta
-infection_matrix = np.array([[0,0,0],[beta,0,0],[0,0,0]])
-
-gamma = 0.04 # this is a guess of gamma
-health_transition = np.array([[1,0,0],[0, 1-gamma, gamma],[0,0,1]])
-
-# adjacency matrix from contacts
-for t in tqdm(range(time_start, time_end+1)):
-    adjacencies = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
-    adjacency_matrix = np.zeros((number_of_agents,number_of_agents))
-    for adj in adjacencies:
-        adjacency_matrix[adj[0],adj[1]] += 1
-    # build the whole adjacency_matrix
-
-    H = np.ndarray((number_of_agents,3))
-
-
-
-
-
-
 # sort/create table of ids by number of contacts with infected people
 # if one agent, a or b, is state==2, increase count for the other
 
