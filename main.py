@@ -66,14 +66,23 @@ gamma = 0.04 # this is a guess of gamma
 health_transition = np.array([[1,0,0],[0, 1-gamma, gamma],[0,0,1]])
 
 # adjacency matrix from contacts
+H = np.full((number_of_agents,3), 1/3)
+H_prev = H
 for t in tqdm(range(time_start, time_end+1)):
+    
     adjacencies = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
-    adjacency_matrix = np.zeros((number_of_agents,number_of_agents))
+    adj_matrix = np.zeros((number_of_agents,number_of_agents))
     for adj in adjacencies:
-        adjacency_matrix[adj[0],adj[1]] += 1
-    # build the whole adjacency_matrix
+        adj_matrix[adj[0],adj[1]] += 1
 
-    H = np.ndarray((number_of_agents,3))
+    infection_adj_matrix = adj_matrix * (np.matmul(np.matmul(H_prev, infection_matrix),H_prev.T) + 0) / beta
+    
+    H_temporal = np.matmul(H,health_transition)
+
+    H_graph = np.matmul(adj_matrix, H_prev)/np.expand_dims(H_prev.sum(axis=1), axis=1)
+
+    H_new = H_graph + H_temporal
+    H_prev = H_new
 
 
 
