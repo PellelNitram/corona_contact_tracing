@@ -68,8 +68,13 @@ health_transition = np.array([[1,0,0],[0, 1-gamma, gamma],[0,0,1]])
 
 # adjacency matrix from contacts
 for t in tqdm(range(time_start, time_end+1)):
-    adjacency_matrix = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
+    adjacencies = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
+    adjacency_matrix = np.zeros((number_of_agents,number_of_agents))
+    for adj in adjacencies:
+        adjacency_matrix[adj[0],adj[1]] += 1
     # build the whole adjacency_matrix
+
+    H = np.ndarray((number_of_agents,3))
 
 
 
