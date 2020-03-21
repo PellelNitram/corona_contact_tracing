@@ -22,10 +22,12 @@
 \usepackage[inline]{enumitem}
 \usepackage{url}
 \usepackage{todonotes}
+\usepackage{biblatex}
+\addbibresource{bibliography.bib}
 
 %opening
 \title{Corona Contact Tracing}
-\author{TODO}
+\author{Martin, Leonard, Thomas, Matthias}
 
 \newcommand{\indexOfState}[1]{\texttt{indOfState}(#1)}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
@@ -63,7 +65,7 @@ We think of partially infected population as a graph, where each individual (or 
 Edges of this graph model contacts of two agents.
 As the health state of the entire population is unknown, we use graph convolution, as explained below, to update our assumptions on the current health state of all individuals.
 
-The definition of a graph convolution for here is
+The definition of a graph convolution~\cite{Kipf2017SemiSupervisedCW} for here is
 
 \begin{equation}
 	h_{v_i}^{(l+1)} = \sum_{j\in A(i)} h_{v_j}^{(l)}
@@ -105,6 +107,9 @@ This propagation rule is based on the following aspects:
 		\begin{equation}
 			\hat{A}_{ij} = A_{ij}\cdot \frac{ v_1^T I v_2 + v_2^T I v_1 }{\beta}.
 		\end{equation}
+		The weighted scalar product of the health states of to agents $i$ and $j$ is used to evaluate whether the edge is necessary. 
+		Only when a infected person and a susceptible have contact, the edge A_{ij} should be considered, otherwise it should be dropped.
+		
 		The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $\beta$ normalises the factor to one to ensure $\hat{A}_{ij} \in [0, 1]$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$. Note that the fraction has the desired properties for pure $S$-, $I$- and $R$-persons.
 	\end{itemize}
 	\item The feature matrix, $h^{(l)}$, consists of all agents' features at time $l$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A three dimensional feature space is used, $D=3$, modeling the three possible health states. The unit vectors of this space are interpreted as following:
@@ -164,7 +169,7 @@ It is multiplied element-wise onto the adjacency matrix $A$, thus $\bar{A} = A \
 
 To optimally limit the spread of the disease, we seek to minimize the number of cancellations $\norm{C}_0$, given that $R_0$ is below zero:
 \begin{equation}
-	\max{C} \norm{C}_0\text{, s.t. }R_0 < 1
+	\max_{C} \norm{C}_0\text{, s.t. }R_0 < 1
 \end{equation}
 
 TODO: Derive an expanded statement from the above formulation.\\
@@ -232,5 +237,7 @@ Note that this part is also normalised:
 	& = \sum_k \frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}} \underbrace{\sum_m H_{k,m}}_{=1\text{, per construction}} = 1
 \end{split}
 \end{equation}
+
+\printbibliography{}
 
 \end{document}
