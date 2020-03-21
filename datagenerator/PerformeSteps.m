@@ -1,10 +1,10 @@
-function [grid, locations] = PerformeSteps(numberOfAgents, locations, gridSize, diffusionRate)
+function [grid, locations] = PerformeSteps(numberOfAgents, locations, gridSize, diffusionRates)
 %
 grid = cell(gridSize);
 for i = 1:numberOfAgents
    r = rand;
    loc = locations(i,:);
-   if r < diffusionRate
+   if r < diffusionRates(i)
      while loc == locations(i,:)
          direction = randi(4);
          if direction == 1

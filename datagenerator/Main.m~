@@ -2,14 +2,14 @@ clear;
 close all;
 
 testRate = 0.1;
-numberOfAgents = 10;
-initialInfected = 3;
+numberOfAgents = 1000;
+initialInfected = 5;
 numberSuperSpreaders = 0.1*numberOfAgents;
 
 beta = 0.6;
 gamma = 0.01;
 
-gridSize = 10;
+gridSize = 100;
 grid = cell(gridSize);
 
 % generate some agents and assign them a location
@@ -45,17 +45,15 @@ knownStates = zeros(size(agentState));
 simulationData(1:numberOfAgents,:) = [agentIds, locations,t*ones(numberOfAgents,1),knownStates];
 
 testedAgents = zeros(size(agentState));
-testedHealthy = 0;
+corona = 0;
 while numberOfIll(t) > 0
     
     agentState = IllnessDynamics(grid, agentState, beta, gamma);
     [grid, locations] = PerformeSteps(numberOfAgents, locations, gridSize, diffusionRates);
     
     agentStateTested = agentState+testedAgents;
-    
-    % Testing in eine Funktion auslagern
     if rand<testRate
-        % Test sampling
+        % TODO Probleme mit dem Test sampling
         p = randperm(length(agentStateTested));
         [C,ia,~] = unique(agentStateTested(p));
         ia = p(ia);
@@ -64,26 +62,20 @@ while numberOfIll(t) > 0
             if rand<0.8
                 % test someone with corona
                 corona = 2;
-                testedHealthy = 0;
             else
                 % test someone without corona
                 corona = 1;
-                testedHealthy = 1;
             end
-            i = ia(corona);
-            testedAgents(i)=1;
+            
         elseif ismember(1,C)
             corona = 1;
-            i = ia(corona);
-            testedAgents(i)=1;
-            testedHealthy = 1;
         elseif ismember(2,C)
-            corona = 1;
-            i = ia(corona);
-            testedAgents(i)=1;
-            testedHealthy = 0;
+            corona = 2;
         end
         
+        i = ia(corona);
+        testedAgents(i)=1;
+
     end
     
     % eventuell redundante daten nicht abspeichern 
@@ -92,11 +84,10 @@ while numberOfIll(t) > 0
         simulationData = [simulationData; zeros(prealloc,5)];
     end
     
-    knownStates = zeros(size(agentState));
     knownStates(testedAgents==1) = agentState(testedAgents==1);
     simulationData(numberOfAgents*(t-1)+1:numberOfAgents*t,:) = [agentIds, locations,t*ones(numberOfAgents,1),knownStates];
     
-    if testedHealthy == 1
+    if corona==1
         testedAgents(i)=0;
     end
     
