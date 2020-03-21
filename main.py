@@ -1,10 +1,20 @@
+import argparse
+
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from tqdm import tqdm
 
-# TODO: Use Argparse to get this from the commandline
-data = pd.read_csv("datagenerator/simulation.csv")
+
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('-dp', '--data-path', type=str, required=True,
+                    help='Path to data')
+args = parser.parse_args()
+
+data_path = args.data_path
+
+data = pd.read_csv(data_path)
 
 # determin start and end time
 time_start = data["t"].min()
@@ -20,7 +30,7 @@ for t in tqdm(range(time_start, time_end+1)):
     # filter for time and find pairwise distances
     current_data = data[data["t"]==t]
     pair_distances = pdist(current_data[["x","y"]], "euclidean")
-    
+
     # use square form of pairwise distances and add diagonal to it, to avoid self matches
     con = np.argwhere(squareform(pair_distances) + np.eye(squareform(pair_distances).shape[0]) == 0)[0]
     # derive contact and add it to contacts
@@ -69,7 +79,7 @@ for t in tqdm(range(time_start, time_end+1)):
         contacts_a = contacts[(contacts["t"] <= t) & (contacts["agent_a"]==current_agent) & (contacts["agent_b_state"]<=1)]
         contacts_b = contacts[(contacts["t"] <= t) & (contacts["agent_b"]==current_agent) & (contacts["agent_a_state"]<=1)]
 
-        
+
         all_secondary_contacts = list(contacts_a["agent_b"]) + list(contacts_b["agent_a"])
         for sc in all_secondary_contacts:
             secondary_contact_counts[sc] += 1
