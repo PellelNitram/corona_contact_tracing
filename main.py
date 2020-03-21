@@ -68,7 +68,7 @@ for ac in all_contacts_of_sicks:
 contact_counts = pd.DataFrame(data={"agent": range(number_of_agents),
                                     "contact_counts": contact_counts,
                                     "secondary_contact_counts": None}).sort_values(by="contact_counts",
-                                                ascending=False)
+                                                                                   ascending=False)
 
 print(contact_counts)
 
