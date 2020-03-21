@@ -75,12 +75,12 @@ As the health state of the entire population is unknown, we use graph convolutio
 		\begin{equation}
 			I =
 			\begin{pmatrix}
-				0   &  0  & 0 \\
-				p_a &  0  & p_r \\
-				0   &  0  & 0
+				0     &  0  & 0 \\
+				\beta &  0  & \alpha \\
+				0     &  0  & 0
 			\end{pmatrix}
 		\end{equation}
-		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $p_a$ denotes the probability of infection  after contact (also known as attack rate). $p_r := 0$ models the probability of being reinfected, which we assume to be zero based upon medical research.
+		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $\beta$ denotes the probability of infection  after contact (also known as attack rate). $\alpha := 0$ models the probability of being reinfected, which we assume to be zero based upon medical research.
 		\item $\hat{A}$, with $\hat{A}_{ij}\in [0, 1]$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
 		\begin{equation}
 			\hat{A}_{ij} = A_{ij}\cdot \frac{I_{\indexOfState{i}, \indexOfState{j}} + I_{\indexOfState{j}, \indexOfState{i}}}{p_a}
@@ -119,7 +119,7 @@ As the health state of the entire population is unknown, we use graph convolutio
 		h_{v_{i,m}}^{(l+1)}
 		 = 
 		\underbrace{
-			\sum_{j \in \hat{A}^{(l)}(i)} h^{(l)}_{v_{j,m}}
+			normalization \cdot \sum_{j \in \hat{A}^{(l)}(i)} h^{(l)}_{v_{j,m}}
 		}_{\text{graph}} +
 		\underbrace{
 			(h^{(l)}_{v_{i}} \cdot T)_m 
@@ -131,7 +131,7 @@ As the health state of the entire population is unknown, we use graph convolutio
 \subsection{Disease Spread Reduction with Minimal Intervention}
 This section presents approaches to optimally reduce the spread of the disease with minimal intervention.
 
-\subsubsection{Optimal Edge Cutting}
+\subsubsection{Edge Cutting Analysis}
 All non pharmaceutical interventions (NPI) can be understood as some kind of edge removal in our graph-based approach:
 \begin{itemize}
 	\item Isolation of an infected individual removes all of its edges with very high probability.
@@ -139,10 +139,14 @@ All non pharmaceutical interventions (NPI) can be understood as some kind of edg
 	\item Social distancing removes some edges of of many individuals.
 	\item Cancellation of large events remove many edges of many individuals.
 \end{itemize}
-In the following we discuss different techniques to calculate the minimal set of edge removals which reduces the $R_0$ value of the pandemic below $1$.
+As a first step analyze the effect of these measures in $R_0$.
 $R_0$ models how many people are infected by a single infected person.
 It is crucial to constrain $R_0$ below zero to avoid exponential growth in the number of infected individuals.
-$R_0$ can be derived from the ratio of infected people of $H^{(t+1)}$ and of $H^{(t)}$:
+
+
+As future work we would like to explore ways to calculate the minimal set of edge removals which reduces the $R_0$ value of the pandemic below $1$.
+
+In our approach $R_0$ can be derived from the ratio of infected people of $H^{(t+1)}$ and of $H^{(t)}$:
 \begin{equation}
 	R_0 = \frac{\norm{H^{(t+1)}\mid_{m=1}}_{0}}{\norm{H^{(t)}\mid_{m=1}}_{0}} %#TODO betrag
 \end{equation}
@@ -157,8 +161,8 @@ To optimally limit the spread of the disease, we seek to minimize the number of 
 \end{equation}
 
 TODO: Derive an expanded statement from the above formulation.\\
-TODO: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
-TODO: This only takes the current time step into account but it would be desirable to look even further into the future.
+% Future Work: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
+% Future Work: This only takes the current time step into account but it would be desirable to look even further into the future.
 
 \subsubsection{Test Prioritization}
 When tests are limited, they should be used to discover as much as possible about the health state of the overall population.
