@@ -4,7 +4,7 @@ from scipy.spatial.distance import pdist, squareform
 from tqdm import tqdm
 
 # TODO: Use Argparse to get this from the commandline
-data = pd.read_csv("simulation.csv")
+data = pd.read_csv("datagenerator/simulation.csv")
 
 # determin start and end time
 time_start = data["t"].min()
