@@ -164,7 +164,7 @@ agentBehaviour = InitializeAgentBehaviour(numberOfAgents, mobilityRate)
 
 # save agent master information
 AgentMaster = pd.DataFrame({'agent': agentIds, 'state': agentState, 'diffusion_rate': diffusionRates, 'behaviour' : agentBehaviour})
-AgentMaster.to_csv('./datadumps/AgentMaster_{}.csv'.format(now.strftime("%Y-%m-%d_%H:%M:%S")), index=False)
+AgentMaster.to_csv('./datadumps/AgentMaster_{}.csv'.format(now.strftime("%Y-%m-%d_%H_%M_%S")), index=False)
 
 # Initialize empty grid and fill with agents based on location
 grid = [[[] for i in range(gridSize)] for i in range(gridSize)]
@@ -258,7 +258,7 @@ numberOfIll = numberOfIll[~np.isnan(numberOfIll)]
 numberOfRecovered = numberOfRecovered[~np.isnan(numberOfRecovered)]
 
 SimulationData = pd.DataFrame({'agent':simulationData[:,0].astype(int),'x':simulationData[:,1].astype(int), 'y':simulationData[:,2].astype(int), 't':simulationData[:,3].astype(int),'state':simulationData[:,4].astype(int)})
-SimulationData.to_csv('./datadumps/SimulationData_{}.csv'.format(now.strftime("%Y-%m-%d_%H:%M:%S")), index=False)
+SimulationData.to_csv('./datadumps/SimulationData_{}.csv'.format(now.strftime("%Y-%m-%d_%H_%M_%S")), index=False)
 
 plt.plot(numberOfhealthy, label="susceptibles")
 plt.plot(numberOfIll, label="infected")
