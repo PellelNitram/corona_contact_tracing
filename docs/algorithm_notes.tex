@@ -1,0 +1,92 @@
+% chktex-file 46
+% !TeX spellcheck = en-US
+% !TeX encoding = utf8
+
+\documentclass[]{article}
+
+\RequirePackage{color,graphicx}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage{pdfpages}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage[american]{babel}
+\usepackage[babel=true, protrusion=alltext-nott, final]{microtype}
+\usepackage[nodayofweek]{datetime}
+\usepackage[inline]{enumitem}
+\usepackage{url}
+
+%opening
+\title{Corona Contact Tracing}
+\author{TODO}
+
+\newcommand{\indexOfState}[1]{\texttt{indOfState}(#1)}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	This technical report accompanies the implementation of the corona\_contact\_tracing package found at \url{https://github.com/PellelNitram/corona_contact_tracing}.
+
+	It extends an existing stochastic SIR simulation to generate data sets suitable to simulating the current corona pandemic.
+	This simulation has full access to all agents' health status.
+	To mirror a real world scenario the health status of agents is only partially observed through tests.
+
+	Next we develop a graph convolutional approach to predict the health status of all agents in this simulation.
+	It uses past contacts as well as oberved health information to derive this prediction.
+	It is able to deal with partial data such as missing locations and missing health status, as it is a probabilistic approach.
+	
+	Lastly, this prediction can be used to derive measures to reduce the diseases' spread.
+	We propose to find a optimal trade of between removing the least amount of edges in said graph (e.g. through quarantine, social distancing, etc.) and limiting the spread of the disease.
+	% Such trade of could be found with minimal cut algorithms.
+	Opposed to classical non-pharmaceutical intervention methods such as contact tracing, our approach directly identifies the nodes with the greatest potential to accelerate the diseases' spread in the network.
+	
+	This package was created within the \#WirVsVirus Hackathon of the German government and is Work in Progress!
+\end{abstract}
+
+\section{Algorithm notes}
+
+\begin{itemize}
+	\item Graph convolution:
+	\begin{equation}
+		h_{v_i}^{(l+1)} = softmax(\sum_{j\in \hat{A}(i)} h_{v_j}^{(l)})
+	\end{equation}
+	with $\hat{A}(i)$ the infection-weighted neighbours of node $v_i$ as derived from the infection-weighted neighbours adjacency matrix $\hat{A}$.
+	\item $\hat{A}$ is constructed from $A$ and $I$ which are the regular adjacency matrix and the infection matrix, respectively.
+	\begin{itemize}
+		\item The adjacency matrix $A$ is time dependent, $A(t)$, and inferred from data. In our use case, $A_{ij}=1$ if nodes $v_i$ and $v_j$, hence persons $i$ and $j$, have been in contact. This corresponds to $dist(v_i, v_j) \le \epsilon$ with $\epsilon=0$ in the discrete case that we consider here.
+		\item The infection matrix is constructed as
+		\begin{equation}
+			I =
+			\begin{pmatrix}
+				0 & 0 & p_a & 0 \\
+				0 & 0 & p_a & 0 \\
+				0 & 0 &  0  & 0 \\
+				0 & 0 &  0  & 0
+			\end{pmatrix}
+		\end{equation}
+		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: unknown, susceptible, infected, recovered. $p_a$ denotes the probability of infection  after contact (also known as attack rate).
+		\item $\hat{A}$, with $\hat{A}_{ij}\in \{0, 1\}$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
+		\begin{equation}
+			\hat{A}_{ij} = A_{ij}\cdot \frac{I_{\indexOfState{i}, \indexOfState{j}} + I_{\indexOfState{j}, \indexOfState{i}}}{p_a}
+		\end{equation}
+		with $\indexOfState{k}$ as index of the state of agent $k$ in order to access the elements from $I$. The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $p_a$ normalises the factor to one to ensure $\hat{A}_{ij} \in \{0, 1\}$. Since $I$ is not symmetric, $p_a$ is a proper normalisation because the sum is in $\{0, p_a\}$.
+	\end{itemize}
+	\item The feature matrix, $H(t)$, consists of all agents' features at time $t$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A four dimensional feature space is used, $D=4$. The unit vectors of this space are interpreted as following:
+	\begin{itemize}
+		\item $\vec{e}_1$: unknown state
+		\item $\vec{e}_2$: susceptible state
+		\item $\vec{e}_3$: infected state
+		\item $\vec{e}_4$: recovered state
+	\end{itemize}
+	\item Open modeling aspects:
+	\begin{itemize}
+		\item Incorporate that an infected person recovers over time.
+	\end{itemize}
+\end{itemize}
+
+\end{document}

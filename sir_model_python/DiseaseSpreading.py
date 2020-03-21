@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
+import argparse
 
 class Agent:
 
@@ -313,11 +314,27 @@ class DiseaseSpreading:
         return line_inf, line_sus, line_rec
 
 
-n_agents = 1000
-rows = 100
-cols = 100
-time_steps = 2000
-infected_radius = 6
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+parser.add_argument('--n_agents', type=int, required=True, default=1000,
+                    help='Number of agents')
+parser.add_argument('--rows', type=int, required=True, default=100,
+                    help='Number of rows')
+parser.add_argument('--cols', type=int, required=True, default=100,
+                    help='Number of columns')
+parser.add_argument('--time_steps', type=int, required=True, default=2000,
+                    help='Number of time steps')
+parser.add_argument('--infected_radius', type=int, required=True, default=6,
+                    help='Number of infection radius')
+
+args = parser.parse_args()
+
+
+n_agents = args.n_agents
+rows = args.rows
+cols = args.cols
+time_steps = args.time_steps
+infected_radius = args.infected_radius
 filename = 'limitedRun.gif'
 
 n_avg_times = 7
