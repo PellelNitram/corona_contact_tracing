@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from time import time
 import matplotlib.pyplot as plt
+import random as rd
 
 
 def InitializeAgentStates(numberOfAgents,initialInfected):
@@ -20,6 +21,12 @@ def InitializeDiffusionRates(numberOfAgents):
     xmax=1
     diffusionRates= xmin + (xmax - xmin)*np.sum(np.random.rand(numberOfAgents,p),1)/p
     return diffusionRates
+
+def InitializeAgentBehaviour(numberOfAgents, mobilityRate):
+    agentBehaviour = np.ones((numberOfAgents,), dtype=np.int64)
+    perm = np.random.permutation(numberOfAgents)
+    agentBehaviour[perm < numberOfAgents*mobilityRate + 1] = 2
+    return agentBehaviour
 
 
 def IllnessDynamics(grid,agentState,beta,gamma):
@@ -57,23 +64,47 @@ def IllnessDynamics(grid,agentState,beta,gamma):
     return agentState
 
 def PerformeSteps(numberOfAgents,locations,gridSize,diffusionRates):
-    
+    def calculate_coordinates_circle_walk(xOld, yOld, x0, y0, gridSize):
+        radius = 10. + rd.random() * 2.
+        # radius = rd.random()*2.+3.
+        angle = (rd.random() - 0.5) * 0.5
+        xNew = int(radius * (np.cos(angle) * (1) - np.sin(angle) * (1)) + x0)
+        yNew = int(radius * (np.sin(angle) * (1) + np.cos(angle) * (1)) + y0)
+        #print("f " + str((xNew, yNew)))
+        # ensure valid dataFrame index
+        if ((xNew > gridSize - 1 or xNew < 0) or (yNew > gridSize - 1 or yNew < 0)):
+            angle = angle + np.pi
+            xNew = int(radius * (np.cos(angle) * (1) - np.sin(angle) * (1)) + x0)
+            yNew = int(radius * (np.sin(angle) * (1) + np.cos(angle) * (1)) + y0)
+            if ((xNew > gridSize - 1 or xNew < 0) or (yNew > gridSize - 1 or yNew < 0)):
+                xNew = xOld
+                yNew = yOld
+
+        return (xNew, yNew)
+
     grid = [[[] for i in range(gridSize)] for i in range(gridSize)]
     
     for i in range(numberOfAgents):
         r = np.random.rand()
         loc = np.copy(locations[i,:])
         if r < diffusionRates[i]:
-            while np.array_equal(loc,locations[i,:]):
-                direction = np.random.randint(4)
-                if direction == 0:
-                    loc[0] = min(max(0,loc[0] + 1),gridSize-1)
-                elif direction == 1:
-                    loc[0]=min(max(0,loc[0] - 1),gridSize-1)
-                elif direction == 2:
-                    loc[1]=min(max(0,loc[1] + 1),gridSize-1)
-                elif direction == 3:
-                    loc[1]=min(max(0,loc[1] - 1),gridSize-1)
+            if(agentBehaviour[i] == 2):
+                #random walk
+                while np.array_equal(loc,locations[i,:]):
+                    direction = np.random.randint(4)
+                    stepsize = int(rd.random()*5)
+                    if direction == 0:
+                        loc[0] = min(max(0,loc[0] + stepsize),gridSize-stepsize)
+                    elif direction == 1:
+                        loc[0]=min(max(0,loc[0] - stepsize),gridSize-stepsize)
+                    elif direction == 2:
+                        loc[1]=min(max(0,loc[1] + stepsize),gridSize-stepsize)
+                    elif direction == 3:
+                        loc[1]=min(max(0,loc[1] - stepsize),gridSize-stepsize)
+            elif(agentBehaviour[i] == 1):
+                #circle walk
+                loc[0], loc[1] = calculate_coordinates_circle_walk(loc[0], loc[1], agentHomeTown[i][0], agentHomeTown[i][0], gridSize)
+
 
         locations[i,:]=loc
         grid[loc[0]][loc[1]].append(i)
@@ -88,19 +119,22 @@ numberOfAgents = 1000
 gridSize = 100
 initialInfected = 5
 testRate = 0.1
+mobilityRate = 0.5
 
 # Implement disease parameters
 beta = 0.6
 gamma = 0.01
 
-# generate some agents and assign them a location
+# generate some agents and assign them a location, set up agent attributes
 locations=np.random.randint(gridSize,size=(numberOfAgents,2),dtype=int)
+agentHomeTown = np.copy(locations)
 agentState = InitializeAgentStates(numberOfAgents,initialInfected)
 diffusionRates = InitializeDiffusionRates(numberOfAgents)
 agentIds = np.arange(numberOfAgents,dtype=np.int64)
+agentBehaviour = InitializeAgentBehaviour(numberOfAgents, mobilityRate)
 
 # save agent master information
-AgentMaster = pd.DataFrame({'agent': agentIds, 'state': agentState, 'diffusion_rate': diffusionRates})
+AgentMaster = pd.DataFrame({'agent': agentIds, 'state': agentState, 'diffusion_rate': diffusionRates, 'behaviour' : agentBehaviour})
 AgentMaster.to_csv('AgentMaster.csv', index=False)
 
 # Initialize empty grid and fill with agents based on location

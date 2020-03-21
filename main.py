@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
+from scipy.spatial import KDTree
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
@@ -34,6 +35,10 @@ for t in tqdm(range(time_start, time_end+1)):
     current_data = data[data["t"]==t]
     pair_distances = pdist(current_data[["x","y"]], "euclidean")
 
+    # wip accelerated data structure
+    kdtree = KDTree(current_data[["x","y"]])
+    kdtree.query_ball_point([6,10],r=.5)
+
     try:
         # use square form of pairwise distances and add diagonal to it, to avoid self matches
         con = np.argwhere(squareform(pair_distances) + np.eye(squareform(pair_distances).shape[0]) == 0)[0]
@@ -53,53 +58,23 @@ for t in tqdm(range(time_start, time_end+1)):
     except IndexError as e:
         pass
 
-# sort/create table of ids by number of contacts with infected people
-# if one agent, a or b, is state==2, increase count for the other
+# Work in Progress!
+# create matrices in numpy
+beta = 0.05 # this is a guess of beta
+infection_matrix = np.array([[0,0,0],[beta,0,0],[0,0,0]])
 
-sick_agent_a = contacts[(contacts["agent_a_state"]==AGENT_STATES['sick']) & (contacts["agent_b_state"] != AGENT_STATES['cured'])]
-sick_agent_b = contacts[(contacts["agent_b_state"]==AGENT_STATES['sick']) & (contacts["agent_a_state"] != AGENT_STATES['cured'])]
+gamma = 0.04 # this is a guess of gamma
+health_transition = np.array([[1,0,0],[0, 1-gamma, gamma],[0,0,1]])
 
-# count all contacts towards each agent
-contact_counts = [0] * number_of_agents
-all_contacts_of_sicks = list(sick_agent_b["agent_a"]) + list(sick_agent_a["agent_b"])
-for ac in all_contacts_of_sicks:
-    contact_counts[ac] += 1
-
-# reformat as dataframe
-contact_counts = pd.DataFrame(data={"agent": range(number_of_agents),
-                                    "contact_counts": contact_counts,
-                                    "secondary_contact_counts": None}).sort_values(by="contact_counts",
-                                                                                   ascending=False)
-
-print(contact_counts)
-
-# Plot histogram of first-contact-person counts
-fig, ax = plt.subplots(1, 1)
-contact_counts['contact_counts'].hist(ax=ax)
-ax.set_xlabel('contact counts')
-ax.set_title('histogram of contact counts')
-plt.show()
-
-# contacts of contacts
-# TODO: Use contacts to second order contact count
-print("find second order contacts")
+# adjacency matrix from contacts
 for t in tqdm(range(time_start, time_end+1)):
-    secondary_contact_counts = [0] * number_of_agents
-    for index, row in contact_counts.iterrows():
-        current_agent = row["agent"]
-        # previous contacts of current_agent have to be unknown/susceptible, otherwise we cannot infect them.
-        contacts_a = contacts[(contacts["t"] <= t) & (contacts["agent_a"]==current_agent) & (contacts["agent_b_state"]<=1)]
-        contacts_b = contacts[(contacts["t"] <= t) & (contacts["agent_b"]==current_agent) & (contacts["agent_a_state"]<=1)]
+    adjacencies = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
+    adjacency_matrix = np.zeros((number_of_agents,number_of_agents))
+    for adj in adjacencies:
+        adjacency_matrix[adj[0],adj[1]] += 1
+    # build the whole adjacency_matrix
 
-
-        all_secondary_contacts = list(contacts_a["agent_b"]) + list(contacts_b["agent_a"])
-        for sc in all_secondary_contacts:
-            secondary_contact_counts[sc] += 1
-    # print(secondary_contact_counts)
-
-# TODO: put this into a nice data frame, but this is time dependend data
-# contact_counts.assign(secondary_contact_counts = pd.Series(secondary_contact_counts).values)
+    H = np.ndarray((number_of_agents,3))
 
 
 
-# IDEA: view agents as nodes and contacts as edges -> graph. Analyse graph who to limit infection
