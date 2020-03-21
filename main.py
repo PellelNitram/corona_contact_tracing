@@ -5,6 +5,8 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from tqdm import tqdm
 
+from utils import AGENT_STATES
+
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -53,8 +55,8 @@ for t in tqdm(range(time_start, time_end+1)):
 # sort/create table of ids by number of contacts with infected people
 # if one agent, a or b, is state==2, increase count for the other
 
-sick_agent_a = contacts[(contacts["agent_a_state"]==2) & (contacts["agent_b_state"] != 3)]
-sick_agent_b = contacts[(contacts["agent_b_state"]==2) & (contacts["agent_a_state"] != 3)]
+sick_agent_a = contacts[(contacts["agent_a_state"]==AGENT_STATES['sick']) & (contacts["agent_b_state"] != AGENT_STATES['cured'])]
+sick_agent_b = contacts[(contacts["agent_b_state"]==AGENT_STATES['sick']) & (contacts["agent_a_state"] != AGENT_STATES['cured'])]
 
 # count all contacts towards each agent
 contact_counts = [0] * number_of_agents
