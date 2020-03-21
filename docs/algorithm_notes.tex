@@ -1,6 +1,8 @@
+% !TeX root = ./algorithm_notes.tex
 % chktex-file 46
 % !TeX spellcheck = en-US
 % !TeX encoding = utf8
+
 
 \documentclass[]{article}
 
@@ -12,6 +14,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{mathtools}
 \usepackage{csquotes}
 \usepackage[american]{babel}
 \usepackage[babel=true, protrusion=alltext-nott, final]{microtype}
@@ -24,13 +27,15 @@
 \author{TODO}
 
 \newcommand{\indexOfState}[1]{\texttt{indOfState}(#1)}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-	This technical report accompanies the implementation of the corona\_contact\_tracing package found at \url{https://github.com/PellelNitram/corona_contact_tracing}.
+	This technical report accompanies the implementation of the corona\_-contact\_tracing package found at \url{https://github.com/PellelNitram/corona_contact_tracing}.
 
 	It extends an existing stochastic SIR simulation to generate data sets suitable to simulating the current corona pandemic.
 	This simulation has full access to all agents' health status.
@@ -45,48 +50,102 @@
 	% Such trade of could be found with minimal cut algorithms.
 	Opposed to classical non-pharmaceutical intervention methods such as contact tracing, our approach directly identifies the nodes with the greatest potential to accelerate the diseases' spread in the network.
 	
-	This package was created within the \#WirVsVirus Hackathon of the German government and is Work in Progress!
+	This technical report was created within the \#WirVsVirus Hackathon of the German government and is Work in Progress!
 \end{abstract}
 
 \section{Algorithm notes}
+
+\subsection{SIR Model}
+
+\subsection{Graph Convolution}
+We think of partially infected population as a graph, where each individual (or agent) is a node.
+Edges of this graph model contacts of two agents.
+As the health state of the entire population is unknown, we use graph convolution, as explained below, to update our assumptions on the current health state of all individuals.
 
 \begin{itemize}
 	\item Graph convolution:
 	\begin{equation}
 		h_{v_i}^{(l+1)} = softmax(\sum_{j\in \hat{A}(i)} h_{v_j}^{(l)})
 	\end{equation}
-	with $\hat{A}(i)$ the infection-weighted neighbours of node $v_i$ as derived from the infection-weighted neighbours adjacency matrix $\hat{A}$.
+	with $\hat{A}(i)$ the infection-weighted neighbors of node $v_i$ as derived from the infection-weighted neighbors adjacency matrix $\hat{A}$.
 	\item $\hat{A}$ is constructed from $A$ and $I$ which are the regular adjacency matrix and the infection matrix, respectively.
 	\begin{itemize}
-		\item The adjacency matrix $A$ is time dependent, $A(t)$, and inferred from data. In our use case, $A_{ij}=1$ if nodes $v_i$ and $v_j$, hence persons $i$ and $j$, have been in contact. This corresponds to $dist(v_i, v_j) \le \epsilon$ with $\epsilon=0$ in the discrete case that we consider here.
+		\item The adjacency matrix $A$ is time dependent, $A^{(t)}$, and inferred from data. In our use case, $A_{ij}=1$ if nodes $v_i$ and $v_j$, hence persons $i$ and $j$, have been in contact. This corresponds to $dist(v_i, v_j) \le \epsilon$ with $\epsilon=0$ in the discrete case that we consider here.
 		\item The infection matrix is constructed as
 		\begin{equation}
 			I =
 			\begin{pmatrix}
-				0 & 0 & p_a & 0 \\
-				0 & 0 & p_a & 0 \\
-				0 & 0 &  0  & 0 \\
-				0 & 0 &  0  & 0
+				0 & p_a & 0 \\
+				0 &  0  & 0 \\
+				0 & p_r & 0
 			\end{pmatrix}
 		\end{equation}
-		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: unknown, susceptible, infected, recovered. $p_a$ denotes the probability of infection  after contact (also known as attack rate).
+		with $I_{ij}$ and $i$ is the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $p_a$ denotes the probability of infection  after contact (also known as attack rate). $p_r = 0$ models the probability of being reinfected.
 		\item $\hat{A}$, with $\hat{A}_{ij}\in \{0, 1\}$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
 		\begin{equation}
 			\hat{A}_{ij} = A_{ij}\cdot \frac{I_{\indexOfState{i}, \indexOfState{j}} + I_{\indexOfState{j}, \indexOfState{i}}}{p_a}
 		\end{equation}
-		with $\indexOfState{k}$ as index of the state of agent $k$ in order to access the elements from $I$. The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $p_a$ normalises the factor to one to ensure $\hat{A}_{ij} \in \{0, 1\}$. Since $I$ is not symmetric, $p_a$ is a proper normalisation because the sum is in $\{0, p_a\}$.
+		with $\indexOfState{k}$ as index of the state of agent $k$ in order to access the elements from $I$. The sum comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $p_a$ normalises the factor to one to ensure $\hat{A}_{ij} \in \{0, 1\}$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$.
 	\end{itemize}
-	\item The feature matrix, $H(t)$, consists of all agents' features at time $t$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A four dimensional feature space is used, $D=4$. The unit vectors of this space are interpreted as following:
+	\item The feature matrix, $H^{(t)}$, consists of all agents' features at time $t$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A three dimensional feature space is used, $D=3$, modelling the three possible health states. The unit vectors of this space are interpreted as following:
 	\begin{itemize}
-		\item $\vec{e}_1$: unknown state
-		\item $\vec{e}_2$: susceptible state
-		\item $\vec{e}_3$: infected state
-		\item $\vec{e}_4$: recovered state
+		\item $\vec{e}_0$: susceptible state
+		\item $\vec{e}_1$: infected state
+		\item $\vec{e}_2$: recovered state
 	\end{itemize}
-	\item Open modeling aspects:
+	A uniform distribution over these possible states expresses complete uncertainty of the health state of an agent.
+	\item The transition of a persons' health state $H^{(t)}$ is determined by the following assumptions:
 	\begin{itemize}
-		\item Incorporate that an infected person recovers over time.
+		\item A susceptible person always stays susceptible (unless their is a vaccine, which we do not model)
+		\item A infected person has a probability $\gamma$ called recovery rate to recover
+		\item A recovered person could habe a probability to be re-infected, but we assume this to be zero. Thus a recovered person always stays recovered.
+	\end{itemize}
+	Thus or transition matrix $T$ is:
+	\begin{equation}
+		T = 
+		\begin{pmatrix}
+			1 &     0    & 0 \\
+			0 & 1-\gamma & \gamma \\
+			0 &     0    & 1 \\
+		\end{pmatrix}
+	\end{equation}
+	The update rule thus becomes:
+	\begin{equation}
+		H^{(t+1)} = H^{(t)} T
+	\end{equation}
+
+	\item TODO: Open modeling aspects:
+	\begin{itemize}
+		\item Normalize H to 1 (softmax)
+		 
 	\end{itemize}
 \end{itemize}
+
+\subsection{Edge Cutting Trade Offs}
+All non pharmaceutical interventions (NPI) can be understood as some kind of edge removal in our graph-based approach:
+\begin{itemize}
+	\item Isolation of an infected individual removes all of its edges with very high probability.
+	\item Quarantine of a contact person removes all of its edges with high probability.
+	\item Social distancing removes some edges of of many individuals.
+	\item Cancellation of large events remove many edges of many individuals.
+\end{itemize}
+In the following we discuss different techniques to calculate the minimal set of edge removals which reduces the $R_0$ value of the pandemic below $1$.
+$R_0$ models how many people are infected by a single infected person.
+It is crucial to constrain $R_0$ below zero to avoid exponential growth in the number of infected individuals.
+$R_0$ can be derived from the ratio of $H^{(t+1)}$ and $H^{(t)}$:
+\begin{equation}
+	R_0 = \frac{H^{(t+1)}}{H^{(t)}}
+\end{equation}
+
+The square matrix $C$ with dimensions $N \times N$ models desirable edge cancellations.
+It is multiplied elementwise onto the adjacency matrix $A$, thus $\bar{A} = A \odot C$ describes a adjacency matrix with applied cancellations.
+
+To optimally limit the spread of the disease, we seek to minimize the number of cancellations $\norm{C}_0$, given that $R_0$ is below zero:
+\begin{equation}
+	\min_{C} \norm{C}_0\text{, s.t. }R_0 < 1
+\end{equation}
+
+TODO: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
+TODO: This only takes the current time step into account but it would be desirable to look even further into the future.
 
 \end{document}
