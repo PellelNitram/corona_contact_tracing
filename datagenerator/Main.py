@@ -56,8 +56,8 @@ def IllnessDynamics(grid,agentState,beta,gamma):
 
 
 testRate = 0.1
-numberOfAgents = 10
-initialInfected = 5
+numberOfAgents = 20
+initialInfected = 3
 
 beta = 0.6
 
@@ -85,10 +85,10 @@ for i in range(numberOfAgents):
 
 grid_ = pd.DataFrame(grid)
 
-prealloc=10000
-numberOfhealthy = np.zeros(prealloc,)
-numberOfIll = np.zeros(prealloc,)
-numberOfRecovered = np.zeros(prealloc,)
+prealloc = 30
+numberOfhealthy = np.full((prealloc,), np.NaN)
+numberOfIll = np.full((prealloc,), np.NaN)
+numberOfRecovered = np.full((prealloc,), np.NaN)
 numberOfhealthy[0] = sum(agentState == 1)
 numberOfIll[0] = sum(agentState == 2)
 numberOfRecovered[0] = sum(agentState == 3)
@@ -99,9 +99,6 @@ simulationData = np.full((prealloc, 5), np.NaN)
 knownStates = np.zeros(agentState.shape,dtype=np.int64)
 
 
-a = np.concatenate((agentIds,locations,t*np.ones((numberOfAgents,)),knownStates), axis=1)
-simulationData[0:numberOfAgents,:] = a
-
 testedAgents = np.zeros(agentState.shape)
 testedHealthy = False
 prob = np.zeros(agentState.shape)
@@ -109,6 +106,11 @@ f = 0.2
 
 
 t = 0
+# TODO: Dataexport initialisieren
+simulationData[0:numberOfAgents,:] = np.concatenate((np.expand_dims(agentIds,axis=1),
+                                                    locations,
+                                                    np.expand_dims(t*np.ones(numberOfAgents),axis=1),
+                                                    np.expand_dims(knownStates,axis=1)), axis=1)
 while numberOfIll[t] > 0:
 
     agentState = IllnessDynamics(grid_,agentState,beta,gamma)
@@ -136,16 +138,22 @@ while numberOfIll[t] > 0:
         testedAgents[agent_id] = 1
         
     # eventuell redundante daten nicht abspeichern
-    t= t + 1
+    t = t + 1
 
-    if numberOfAgents*t + 1 > simulationData.shape(0):
-        simulationData = concat([[simulationData],[zeros(prealloc,5)]])
+    if numberOfAgents*(t+1)> simulationData.shape[0]:
+        simulationData = np.concatenate((simulationData,np.full((prealloc, 5), np.NaN)))
+        numberOfhealthy = np.concatenate((numberOfhealthy, np.full((prealloc,), np.NaN)))
+        numberOfIll = np.concatenate((numberOfIll, np.full((prealloc,), np.NaN)))
+        numberOfRecovered = np.concatenate((numberOfRecovered, np.full((prealloc,), np.NaN)))
 
 
     knownStates = np.zeros(agentState.shape)
-    knownStates[testedAgents == 1] = agentState(testedAgents == 1)
-    simulationData[arange(dot(numberOfAgents,(t - 1)) + 1,dot(numberOfAgents,t)),arange()]=concat([agentIds,locations,dot(t,ones(numberOfAgents,1)),knownStates])
-    
+    knownStates[testedAgents == 1] = agentState[testedAgents == 1]
+    simulationData[numberOfAgents*t:numberOfAgents*(t+1),:] = np.concatenate((np.expand_dims(agentIds,axis=1),
+                                                                                locations,
+                                                                                np.expand_dims(t*np.ones(numberOfAgents),axis=1),
+                                                                                np.expand_dims(knownStates,axis=1)), axis=1)
+                                    
     # reset test count if agent was healthy
     if testedHealthy == 1:
         testedAgents[agent_id] = 0
@@ -155,7 +163,10 @@ while numberOfIll[t] > 0:
     numberOfRecovered[t] = sum(agentState == 3)
 
 
-a=isnan(simulationData(arange(),1))
-simulationData[a,arange()]=[]
-simulation=array2table(simulationData,'VariableNames',cellarray(['agent','x','y','t','state']))
-writetable(simulation,'simulation.csv')
+simulationData = simulationData[~np.isnan(simulationData).any(axis=1),:]
+numberOfhealthy = numberOfhealthy[~np.isnan(numberOfhealthy)]
+numberOfIll = numberOfIll[~np.isnan(numberOfIll)]
+numberOfRecovered = numberOfRecovered[~np.isnan(numberOfRecovered)]
+
+SimulationData = pd.DataFrame({'agent':simulationData[:,0],'x':simulationData[:,1], 'y':simulationData[:,2], 't':simulationData[:,3],'state':simulationData[:,4]})
+SimulationData.to_csv('SimulationData_.csv', index=False)
