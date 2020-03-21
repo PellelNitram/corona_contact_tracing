@@ -6,6 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+# Vs code
+.vscode/
+
+# Matlab
+*.m~
+*.csv
+
 # Distribution / packaging
 .Python
 build/
