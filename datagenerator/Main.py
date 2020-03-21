@@ -4,7 +4,7 @@ import pandas as pd
 
 def InitializeAgentStates(numberOfAgents,initialInfected):
 
-    agentState = np.ones((numberOfAgents,))
+    agentState = np.ones((numberOfAgents,),dtype=np.int64)
     perm = np.random.permutation(numberOfAgents)
     agentState[perm < initialInfected + 1] = 2
     return agentState
@@ -25,50 +25,44 @@ def IllnessDynamics(grid,agentState,beta,gamma):
 
     groupIndices=numberOfIndividualsOnCell > 1
     singleIndices=numberOfIndividualsOnCell == 1
-    groups = grid[groupIndices].dropnan
-    singles = grid[singleIndices]
+    groups = grid[groupIndices].stack()
+    singles = grid[singleIndices].stack()
 
     for group in groups:
-        groupStates=agentState(group)
-        for j in arange(1,length(group)).reshape(-1):
-            individual=group(j)
-            state=groupStates(j)
+        group = np.array(group)
+        groupStates=agentState[group]
+        for j in range(len(group)):
+            individual=group[j]
+            state=groupStates[j]
             if state == 2:
-                r=copy(rand)
+                r = np.random.rand()
                 if r < beta:
-                    temp=groupStates == 1
-                    healtyIndividuals=group(temp)
-                    agentState[healtyIndividuals]=2
-                q=copy(rand)
+                    healtyIndividuals = group[groupStates == 1]
+                    agentState[healtyIndividuals] = 2
+                q = np.random.rand()
                 if q < gamma:
-                    agentState[individual]=3
+                    agentState[individual] = 3
     
     
-    for l in arange(1,length(singles)).reshape(-1):
-        single=singles[l]
-# IllnessDynamics.m:33
-        state=agentState(single)
-# IllnessDynamics.m:34
+    for single in singles:
+        state=agentState[single]
         if state == 2:
-            q=copy(rand)
-# IllnessDynamics.m:36
+            q = np.random.rand()
             if q < gamma:
                 agentState[single]=3
-# IllnessDynamics.m:38
-    
     
     return agentState
 
 
 
 testRate = 0.1
-numberOfAgents = 1000
+numberOfAgents = 10
 initialInfected = 5
 
 beta = 0.6
 
 gamma = 0.01
-gridSize = 100
+gridSize = 10
 
 
 # generate some agents and assign them a location
@@ -105,58 +99,60 @@ simulationData = np.full((prealloc, 5), np.NaN)
 knownStates = np.zeros(agentState.shape,dtype=np.int64)
 
 
-# a = np.concatenate((agentIds,locations,t*np.ones((numberOfAgents,)),knownStates), axis=1)
-# simulationData[0:numberOfAgents,:] = a
+a = np.concatenate((agentIds,locations,t*np.ones((numberOfAgents,)),knownStates), axis=1)
+simulationData[0:numberOfAgents,:] = a
 
 testedAgents = np.zeros(agentState.shape)
-testedHealthy=0
+testedHealthy = False
+prob = np.zeros(agentState.shape)
+f = 0.2
 
-t=0
+
+t = 0
 while numberOfIll[t] > 0:
 
     agentState = IllnessDynamics(grid_,agentState,beta,gamma)
-    grid,locations = PerformeSteps(numberOfAgents,locations,gridSize,diffusionRates,nargout=2)
-    agentStateTested=agentState + testedAgents
-    if rand < testRate:
+    # grid, locations = PerformeSteps(numberOfAgents,locations,gridSize,diffusionRates,nargout=2)
+    
+    agentStateTested = agentState + testedAgents
+    
+    if 0 < testRate: #np.random.rand()
         # Test sampling
-        p=randperm(length(agentStateTested))
-        C,ia,__=unique(agentStateTested(p),nargout=3)
-        ia=p(ia)
-        if sum(ismember(concat([1,2]),C)) == 2:
-            if rand < 0.8:
-                # test someone with corona
-                corona=2
-                testedHealthy=0
-            else:
-                # test someone without corona
-                corona=1
-                testedHealthy=1
-            i=ia(corona)
-            testedAgents[i]=1
+        sum_1 = sum(agentStateTested==1)
+        sum_2 = sum(agentStateTested==2)
+        sum_1_2 =sum_1 + sum_2
+
+        a = 1/(sum_1/sum_1_2+sum_2/(f*sum_1_2))
+        prob[agentStateTested==1] = a * 1 / (sum(agentStateTested==1)+sum(agentStateTested==2)) # probability to select healthy agent to test
+        prob[agentStateTested==2] = a/f * 1 / (sum(agentStateTested==1)+sum(agentStateTested==2)) # probability to select sick agent to test
+        prob[agentStateTested>2] = 0
+        agent_id = np.random.choice(agentIds,p=prob)
+
+        if agentState[agent_id]==1:
+            testedHealthy = True
         else:
-            if ismember(1,C):
-                corona=1
-                i=ia(corona)
-                testedAgents[i]=1
-                testedHealthy=1
-            else:
-                if ismember(2,C):
-                    corona=1
-                    i=ia(corona)
-                    testedAgents[i]=1
-                    testedHealthy=0
+            testedHealthy = False
+
+        testedAgents[agent_id] = 1
+        
     # eventuell redundante daten nicht abspeichern
-    t=t + 1
-    if dot(numberOfAgents,t) + 1 > size(simulationData,1):
-        simulationData=concat([[simulationData],[zeros(prealloc,5)]])
-    knownStates=zeros(size(agentState))
-    knownStates[testedAgents == 1]=agentState(testedAgents == 1)
+    t= t + 1
+
+    if numberOfAgents*t + 1 > simulationData.shape(0):
+        simulationData = concat([[simulationData],[zeros(prealloc,5)]])
+
+
+    knownStates = np.zeros(agentState.shape)
+    knownStates[testedAgents == 1] = agentState(testedAgents == 1)
     simulationData[arange(dot(numberOfAgents,(t - 1)) + 1,dot(numberOfAgents,t)),arange()]=concat([agentIds,locations,dot(t,ones(numberOfAgents,1)),knownStates])
+    
+    # reset test count if agent was healthy
     if testedHealthy == 1:
-        testedAgents[i]=0
-    numberOfhealthy[t]=sum(agentState == 1)
-    numberOfIll[t]=sum(agentState == 2)
-    numberOfRecovered[t]=sum(agentState == 3)
+        testedAgents[agent_id] = 0
+
+    numberOfhealthy[t] = sum(agentState == 1)
+    numberOfIll[t] = sum(agentState == 2)
+    numberOfRecovered[t] = sum(agentState == 3)
 
 
 a=isnan(simulationData(arange(),1))
