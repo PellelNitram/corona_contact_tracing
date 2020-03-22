@@ -54,4 +54,19 @@ In this case, 1000 agents were initialized on a 100 by 100 grid, where a certain
 With the above stated parameters ($d=0.8$, $\beta=0.6$, $\gamma=0.01$), the disease does not spread over the whole population. However over 80\% were infected over time, which could be a very likely scenario of the corona out brake.
 
 \subsection{Improving the Simulation}
-Random walk is commonly used for simple Simulations. However this movement pattern does not represent the daily routine of the majority of citizens. It  is more likely that the major part of the population moves around their hometown and travel small distances which leads to clustering of the whole population. To improve the simulation the agents are split into two groups. One group moves random walk like. This group represents e.g. service providers and delivery services. The other group moves around given points. This movement is implemented using polar coordinates with random radius and random angle.
+Random walk is commonly used for simple Simulations. However this movement pattern does not represent the daily routine of the majority of citizens. It  is more likely that the major part of the population moves around their hometown and travel small distances which leads to clustering of the whole population. To improve the simulation the agents are split into two groups. One group moves random walk like. This group represents e.g. service providers and delivery services. The other group moves around given points. This movement is implemented using polar coordinates with random radius and random angle. The movement pattern of the two groups is illustrated in figure \ref{fig:movementPattern}. 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{docs/movementPattern.png}
+	\caption{Movement pattern of the two groups. Random walk (orange) and localized movement (blue)}%
+	\label{fig:movementPattern}
+\end{figure}
+
+With these two groups new features like multiple outbreaks of the waves in different clusters can be observed. An example of the improved model is shown in figure \ref{fig:multipleOutbreaks}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\linewidth]{docs/multipleOutbreaks.pdf}
+	\caption{Plot  of  the  proportions  of  susceptible  (blue),  infected  (orange)  and  recovered  (green)  individuals  in  each  state over time.)}%
+	\label{fig:multipleOutbreaks}
+\end{figure}
