@@ -62,7 +62,8 @@ Random walk is commonly used for simple Simulations. However this movement patte
 	\label{fig:movementPattern}
 \end{figure}
 
-With these two groups new features like multiple outbreaks of the waves in different clusters can be observed. An example of the improved model is shown in figure \ref{fig:multipleOutbreaks}. In this case 3000 agents were initialized on a 200 by 200 grid with the infection paramters $\beta=0.6$ and $\gamma = 0.01$. The infection waves at $t = 40$, $t = 210$ and $t= 650$ can be explained by the infection of a new cluster. The second infection wave is illustrated in figure. 
+With these two groups new features like multiple outbreaks of the waves in different clusters can be observed. An example of the improved model is shown in figure \ref{fig:multipleOutbreaks}. In this case 3000 agents were initialized on a 200 by 200 grid with the infection parameters $\beta=0.6$ and $\gamma = 0.01$. The cluster movement is controlled by a random radius $r=10+x$ where $x$ is a random number $\in [0,2]$. The angle randomly picked from $[-0.25,0.25]$. The random walk movement uses random step sizes $\in [0,4]$.  \newline
+The infection waves at $t = 40$, $t = 210$ and $t= 650$ can be explained by the infection of a new cluster. The second infection wave is illustrated in figure \ref{fig:clusterInfeciton}. The whole animation of the disease spread can be found at (insert link). 
 
 \begin{figure}[H]
 	\centering
@@ -78,6 +79,6 @@ With these two groups new features like multiple outbreaks of the waves in diffe
     \includegraphics[width=.24\textwidth]{docs/img/cluster210.pdf}\hfill
     \includegraphics[width=.24\textwidth]{docs/img/cluster270.pdf}\hfill
     \caption{Second infection waves in figure \ref{fig:multipleOutbreaks}. Blue: not infected, red: infected, green: recovered. $t = 190$ cluster gets infected (top left), $t = 200$ disease spreads (top right ), $t = 210$ most of the cluster is infected (bottom left) and $t = 270$ cluster recovers (bottom right).}
-    \label{fig:foobar}
+    \label{fig:clusterInfeciton}
     
 \end{figure}
