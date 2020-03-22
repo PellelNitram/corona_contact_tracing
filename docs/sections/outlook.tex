@@ -4,44 +4,50 @@
 
 This section presents future approaches to optimally reduce the spread of the disease with minimal societal intervention.
 
-\subsection{Edge Cutting}
-All non pharmaceutical interventions (NPI) could be understood as some kind of edge removal in our graph-based approach:
+
+\subsection{Policy Design}
+In the previous sections we have shown how predict the health state of all individuals in a location tracked population.
+The next step is to use this information to compute optimal policies.
+These policies guide a governments' and societies' response to the spread of COVID-19 and modify how the disease is able to spread in a population.
+
+An optimal policy always keeps the infection counts below the medical systems' capacity and the total number of infections as small as possible.
+% not much real data on this.
+Mathematically speaking we want to minimize the sum of all future infections
+\begin{equation}
+	\min \sum_{\forall t} N^{(t)}_i
+\end{equation}
+whilst
+\begin{equation}
+	N^{(l)}_i \leq N_{limit}, \forall t
+\end{equation}
+
+A policy may consist out of two different kinds of actions, non pharmaceutical interventions (NPI) and test prioritization (TP).
+
+
+\subsubsection{Non Pharmaceutical Interventions (NPI)}
+All non pharmaceutical interventions can be understood as some kind of edge removal in our graph-based approach:
 \begin{itemize}
 	\item Isolation of an infected individual removes all of its edges with very high probability.
 	\item Quarantine of a contact person removes all of its edges with high probability.
-	\item Social distancing removes some edges of of many individuals.
+	\item Social distancing removes some edges of many individuals.
 	\item Cancellation of large events remove many edges of many individuals.
 \end{itemize}
-These interventions can be modelled in our SIR model by modifying the diffusion rate of the agents.
-Thus its effects can be evaluate qualitatively and quantitatively.
 
-Based on our graph-based approach, one could also try to compute the minimal set of interventions, which still contains the disease.
-A good proxy for this containment is to analyse the effect of these measures on $R_0$, which models how many people are infected by a single infected person.
-It is crucial to constrain $R_0$ below one to avoid exponential growth of the number of infected individuals.
-
-In our approach $R_0$ can be derived from the ratio of infected people of $H^{(t+1)}$ and of $H^{(t)}$:
+Formally speaking, the square matrix $C \in \mathbb{B}$ with dimensions $N \times N$ models desirable edge cancellations.
+This is the policy, which will be optimized.
+To avoid the trivial solution of $C=0$, the cancellation of all edges, we also want to minimize the the number of cancellations
 \begin{equation}
-%R_0 = \frac{\norm{H^{(t+1)}\mid_{m=1}}_{0}}{\norm{H^{(t)}\mid_{m=1}}_{0}} %#TODO betrag
+	\min_{C} -\sum_i \sum_j C_{ij}
 \end{equation}
 
-The square matrix $C$ with dimensions $N \times N$ models desirable edge cancellations.
+
 Note, that this matrix does not have to know the edges of a future time step, it only expresses which edges must not exist.
-It is multiplied element-wise onto the adjacency matrix $A$, thus $\bar{A} = A \odot C$ describes a adjacency matrix with applied cancellations.
-
-%To optimally limit the spread of the disease, we seek to minimize the number of cancellations $\norm{C}_0$, given that $R_0$ is below one:
-\begin{equation}
-%\max_{C} \norm{C}_0\text{, s.t. }R_0 < 1
-\end{equation}
-Alternatively
-
-\begin{equation}
-%\max_{C} \norm{C}_0\text{, s.t. } \norm{H^{(t+1)}\mid_{m=1}}_{0} <= KapaLimit
-\end{equation}
+It is multiplied element-wise onto the adjacency matrix $A$ to obtain the adjacency matrix with applied cancellations $\bar{A} = A \odot C$.
 
 % Future Work: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
 % Future Work: This only takes the current time step into account but it would be desirable to look even further into the future.
 
-\subsection{Test Prioritization}
+\subsubsection{Test Prioritization}
 When tests are limited, they should be used to discover as much as possible about the health state of the overall population.
 This in turn allows to reduce the $R_0$ value in further time steps as edge cutting becomes more efficient.
 
