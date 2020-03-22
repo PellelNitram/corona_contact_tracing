@@ -43,25 +43,12 @@
 \usepackage{graphicx}% Include figure files
 \usepackage{dcolumn}% Align table columns on decimal point
 \usepackage{bm}% bold math
-%\usepackage{hyperref}% add hypertext capabilities
-%\usepackage[mathlines]{lineno}% Enable numbering of text and display math
-%\linenumbers\relax % Commence numbering lines
+\usepackage{hyperref}% add hypertext capabilities
 \usepackage{todonotes}
-
-%\usepackage[showframe,%Uncomment any one of the following lines to test 
-%%scale=0.7, marginratio={1:1, 2:3}, ignoreall,% default settings
-%%text={7in,10in},centering,
-%%margin=1.5in,
-%%total={6.5in,8.75in}, top=1.2in, left=0.9in, includefoot,
-%%height=10in,a5paper,hmargin={3cm,0.8in},
-%]{geometry}
 
 \begin{document}
 
-%\preprint{APS/123-QED}
-
-\title{Corona Contact Tracing}% Force line breaks with \\
-%\thanks{A footnote to the article title}%
+\title{Corona Contact Tracing: Optimal contact inhibition for decelerating the pandemic}
 
 \author{Leonard Salewski}
 \author{Thomas XXX}
@@ -95,45 +82,11 @@
                               %display desired
 \maketitle
 
-%\tableofcontents
+\section{\label{sec:introcution}Introduction}
 
-\section{\label{sec:level1}First-level heading}
+\input{sections/0_introduction.tex}
 
-This sample document demonstrates proper use of REV\TeX~4.1 (and
-\LaTeXe) in mansucripts prepared for submission to APS
-journals. Further information can be found in the REV\TeX~4.1
-documentation included in the distribution or available at
-\url{http://authors.aps.org/revtex4/}.
-
-When commands are referred to in this example file, they are always
-shown with their required arguments, using normal \TeX{} format. In
-this format, \verb+#1+, \verb+#2+, etc. stand for required
-author-supplied arguments to commands. For example, in
-\verb+\section{#1}+ the \verb+#1+ stands for the title text of the
-author's section heading, and in \verb+\title{#1}+ the \verb+#1+
-stands for the title text of the paper.
-
-Line breaks in section headings at all levels can be introduced using
-\textbackslash\textbackslash. A blank input line tells \TeX\ that the
-paragraph has ended. Note that top-level section headings are
-automatically uppercased. If a specific letter or word should appear in
-lowercase instead, you must escape it using \verb+\lowercase{#1}+ as
-in the word ``via'' above.
-
-\subsection{\label{sec:level2}Second-level heading: Formatting}
-
-This file may be formatted in either the \texttt{preprint} or
-\texttt{reprint} style. \texttt{reprint} format mimics final journal output. 
-Either format may be used for submission purposes. \texttt{letter} sized paper should
-be used when submitting to APS journals.
-
-\subsubsection{Wide text (A level-3 head)}
-The \texttt{widetext} environment will make the text the width of the
-full page, as on page~\pageref{eq:wideeq}. (Note the use the
-\verb+\pageref{#1}+ command to refer to the page number.) 
-\paragraph{Note (Fourth-level head is run in)}
-The width-changing commands only take effect in two-column formatting. 
-There is no effect if text is in a single column.
+\section{\label{sec:TODO}Graph-based framework}
 
 \subsection{\label{sec:citeref}Citations and References}
 A citation in text uses the command \verb+\cite{#1}+ or
