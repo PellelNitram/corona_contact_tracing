@@ -1,0 +1,54 @@
+% !TeX root = ./algorithm_notes.tex
+% chktex-file 46
+% !TeX spellcheck = en-GB
+% !TeX encoding = utf8
+
+\section{Appendix}
+
+\subsection{Consistency of notations}%
+\label{sec:consistency}
+
+Using the notation from the blog and the paper, including $H'\in\mathbb{R}^{N\times D}$, $A\in\mathbb{R}^{N\times N}$, $H\in\mathbb{R}^{N\times D}$, the propagation rule is:
+
+\begin{equation}
+	H' = A H
+\end{equation}
+
+is equivalent to
+
+\begin{equation}
+	\begin{split}
+		H'_{v_i, m} & = \sum_l \overbrace{A_{v_i, l}}^{\in \{0, 1\}} H_{l, m} \\
+		            & = \sum_{l'} H_{l',m}
+	\end{split}
+\end{equation}
+
+where $l'$ takes all $A_{v_i,l}=1$, i.e.\ neighbours, into account.
+
+Hence, I do understand that the notations are equal.
+
+\subsection{Formulate normalisation}
+
+Use from ICLR 2017 paper the normalisation $D_{ii} = \sum_j \hat{A}_{ij}$.
+
+Use the knowledge from the blog post to write:
+
+\begin{equation}
+	\begin{split}
+		\overbrace{H'}^{\in \mathbb{R}^{N\times D}} 
+			& = \overbrace{D^{-1}}^{\in\mathbb{R}^{N\times N}} \overbrace{\hat{A}}^{\in \mathbb{R}^{N\times N}} \overbrace{H}^{\in\mathbb{R}^{N\times D}}
+			\Leftrightarrow H'_{v_i, m} = \sum_k \overbrace{D^{-1}_{v_i,k}}^{=D_{v_i,v_i}, \delta_{v_i, k}} {(\hat{A} H)}_{km} \\
+			& = D^{-1}_{v_i, v_i} (\hat{A} H)_{v_i, m} = D^{-1}_{{v}_i, v_i} \sum_k \hat{A}_{v_i, k} H_{k, m} = \sum_k \underbrace{\frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}}}_{\text{normalised}} H_{k, m}.
+	\end{split}
+\end{equation}
+
+The weighting by the adjacency matrix is, indeed, normalised to its column sums.
+
+Note that this part is also normalised:
+
+\begin{equation}
+\begin{split}
+	\sum_m H'_{v_i, m} & = \sum_m \sum_k \frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}} H_{k, m} \\
+	& = \sum_k \frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}} \underbrace{\sum_m H_{k,m}}_{=1\text{, per construction}} = 1
+\end{split}
+\end{equation}

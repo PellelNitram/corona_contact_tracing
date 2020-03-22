@@ -1,0 +1,52 @@
+% !TeX root = ./algorithm_notes.tex
+% chktex-file 46
+% !TeX spellcheck = en-GB
+% !TeX encoding = utf8
+
+\section{Disease Spread Reduction with Minimal Intervention}
+This section presents approaches to optimally reduce the spread of the disease with minimal intervention.
+
+\subsubsection{Edge Cutting Analysis}
+All non pharmaceutical interventions (NPI) can be understood as some kind of edge removal in our graph-based approach:
+\begin{itemize}
+	\item Isolation of an infected individual removes all of its edges with very high probability.
+	\item Quarantine of a contact person removes all of its edges with high probability.
+	\item Social distancing removes some edges of of many individuals.
+	\item Cancellation of large events remove many edges of many individuals.
+\end{itemize}
+As a first step analyse the effect of these measures in $R_0$.
+$R_0$ models how many people are infected by a single infected person.
+It is crucial to constrain $R_0$ below zero to avoid exponential growth in the number of infected individuals.
+
+
+As future work we would like to explore ways to calculate the minimal set of edge removals which reduces the $R_0$ value of the pandemic below $1$.
+
+In our approach $R_0$ can be derived from the ratio of infected people of $H^{(t+1)}$ and of $H^{(t)}$:
+\begin{equation}
+	R_0 = \frac{\norm{H^{(t+1)}\mid_{m=1}}_{0}}{\norm{H^{(t)}\mid_{m=1}}_{0}} %#TODO betrag
+\end{equation}
+
+The square matrix $C$ with dimensions $N \times N$ models desirable edge cancellations.
+Note, that this matrix does not have to know the edges of a future time step, it only expresses which edges must not exist.
+It is multiplied element-wise onto the adjacency matrix $A$, thus $\bar{A} = A \odot C$ describes a adjacency matrix with applied cancellations.
+
+To optimally limit the spread of the disease, we seek to minimize the number of cancellations $\norm{C}_0$, given that $R_0$ is below zero:
+\begin{equation}
+	\max_{C} \norm{C}_0\text{, s.t. }R_0 < 1
+\end{equation}
+
+TODO: Derive an expanded statement from the above formulation.\\
+% Future Work: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
+% Future Work: This only takes the current time step into account but it would be desirable to look even further into the future.
+
+\subsubsection{Test Prioritization}
+When tests are limited, they should be used to discover as much as possible about the health state of the overall population.
+This in turn allows to reduce the $R_0$ value in further time steps as edge cutting is more efficient.
+
+Lets assume there are $t_{\text{max}}$ tests per time step.
+A test reveals the true health state of an individual (ignoring false negatives and false positives)
+\begin{equation}
+	h^{(t)} \xrightarrow{\text{test}} h^{(t+1)} \in \{\vec{e}_0, \vec{e}_1, \vec{e}_2 \}
+\end{equation}
+
+The test assignment $T$ with dimension $N$ is a binary variable describing which individuals should be tested.
