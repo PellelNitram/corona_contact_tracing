@@ -28,6 +28,24 @@ def InitializeAgentBehaviour(numberOfAgents, mobilityRate):
     agentBehaviour[perm < numberOfAgents*mobilityRate + 1] = 2
     return agentBehaviour
 
+def InitializeHomeTown(numberOfAgents, numberOfClusters, gridSize):
+    clusterCenter = np.random.randint(gridSize,size=(numberOfClusters,2),dtype=int)
+    agentHomeTown = np.random.randint(gridSize,size=(numberOfAgents,2),dtype=int)
+    for i in range(0, numberOfAgents):
+        homeTown = np.random.randint(numberOfClusters)
+        xNew = clusterCenter[homeTown][0] + (rd.random()-0.5)*10.0
+        yNew = clusterCenter[homeTown][1] + (rd.random()-0.5)*10.0
+        #ensure valid coordinates
+        if ((xNew > gridSize - 1 or xNew < 0) or (yNew > gridSize - 1 or yNew < 0)):
+            xNew = clusterCenter[homeTown][0]
+            yNew = clusterCenter[homeTown][1]
+
+        agentHomeTown[i][0] = xNew
+        agentHomeTown[i][0] = yNew
+
+    return agentHomeTown
+
+
 
 def IllnessDynamics(grid,agentState,beta,gamma):
 
@@ -115,18 +133,20 @@ def PerformeSteps(numberOfAgents,locations,gridSize,diffusionRates):
 
 
 # Initial values
-numberOfAgents = 1000
-gridSize = 100
+numberOfAgents = 3000
+gridSize = 200
 initialInfected = 5
-testRate = 0.1
-mobilityRate = 0.5
+testRate = 0.2
+mobilityRate = 0.3
+numberOfClusters = 15
 
 # Implement disease parameters
 beta = 0.6
 gamma = 0.01
 
 # generate some agents and assign them a location, set up agent attributes
-locations=np.random.randint(gridSize,size=(numberOfAgents,2),dtype=int)
+#locations=np.random.randint(gridSize,size=(numberOfAgents,2),dtype=int)
+locations = InitializeHomeTown(numberOfAgents, numberOfClusters, gridSize)
 agentHomeTown = np.copy(locations)
 agentState = InitializeAgentStates(numberOfAgents,initialInfected)
 diffusionRates = InitializeDiffusionRates(numberOfAgents)
@@ -208,7 +228,7 @@ while numberOfIll[t] > 0:
     simulationData[numberOfAgents*t:numberOfAgents*(t+1),:] = np.concatenate((np.expand_dims(agentIds,axis=1),
                                                                                 locations,
                                                                                 np.expand_dims(t*np.ones(numberOfAgents),axis=1),
-                                                                                np.expand_dims(ObservedStates,axis=1)), axis=1)
+                                                                                np.expand_dims(agentState,axis=1)), axis=1)
                                     
     # reset test count if agent was healthy
     if testedHealthy == True:
