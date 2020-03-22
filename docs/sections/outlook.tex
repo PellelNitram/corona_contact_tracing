@@ -2,6 +2,34 @@
 
 - re-model current strategies: doing nothing, social distancing, isolation.
 
+\subsection{Baysian way of estimating the Probabilities}
+
+A major drawback of our analysis is that we only take fixed disease states of individuals into account, i.e either susceptible, infected or recovered. However, in real live, due to the lack of data, these states are mostly unknown and have to be estimated by a probability distribution. If we model these probabilities based on detailed assumptions, we can use Bayes' posterior probability to update these distributions based on the individual interaction of people. Thus, we define $X$ as the random variable that represents the state of a single individual. It can be assumed, that $X$ is well approximated by the multinomail distribution ($n\gg1$):
+\begin{equation}
+    X = \left(X_{S}, X_{I}, X_{R}\right) \sim \text{Mn}(n;p_S^{(t)},p_I^{(t)},p_R^{(t)})
+\end{equation}
+where $n$ is the population size, and $p_S^{(t)}$, $p_I^{(t)}$, and $p_R^{(t)}$ are the probability for an Individual to be either a susceptible, an infected or a recovered individual. These probabilities change over time as the disease progresses, while
+
+\begin{equation}
+    p_S^{(t)}+p_I^{(t)}+p_R^{(t)}=1
+\end{equation}
+
+As we can only estimate the probabilities $p_S^{(t)}$, $p_I^{(t)}$, and $p_R^{(t)}$ from samples of our population. Therefore, we assume that the probabilities are taken from a prior distribution, in this case the Dirichlet distribution:
+
+\begin{equation}
+    \left(p_{S,i}^{(t)}, p_{I,i}^{(t)}, p_{R,i}^{(t)}\right) \sim \operatorname{Dir}\left(\alpha_{1,i}^{(t)}, \alpha_{2,i}^{(t)}, \alpha_{3,i}^{(t)}\right).
+\end{equation}
+
+The parameters $\alpha_{1,i}^{(0)}$, $\alpha_{2,i}^{(0)}$, and $\alpha_{3,i}^{(0)}$ can be estimated from $p_S^{(0)}$, $p_I^{(0)}$, and $p_R^{(0)}$ and are specific for each individual $i$.
+
+If we now assume that two individuals with unknown state meet at the same location, an interaction occurs and we cannot neglect, that at least one of the individuals may carry the disease and may potentially infect the other. Therefore, we can assume, that each individual is present in an infectious superstate $\braket{X}$ where
+\begin{equation}
+    \braket{X} = \left(\braket{X_{S,i}}, \braket{X_{I,i}}, \braket{X_{R,i}}\right) = \left(p_S^{(t)},p_I^{(t)},p_R^{(t)}\right)
+\end{equation}
+If the state of an individual in this group known, due to a previous test for example, the state collapses into the right state.
+
+
+
 This section presents future approaches to optimally reduce the spread of the disease with minimal societal intervention.
 
 
