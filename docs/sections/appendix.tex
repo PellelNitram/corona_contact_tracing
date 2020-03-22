@@ -28,10 +28,12 @@ Use the knowledge from the blog post to write:
 
 \begin{equation}
 	\begin{split}
-		\overbrace{H'}^{\in \mathbb{R}^{N\times D}} 
-			& = \overbrace{D^{-1}}^{\in\mathbb{R}^{N\times N}} \overbrace{\hat{A}}^{\in \mathbb{R}^{N\times N}} \overbrace{H}^{\in\mathbb{R}^{N\times D}}
-			\Leftrightarrow H'_{v_i, m} = \sum_k \overbrace{D^{-1}_{v_i,k}}^{=D_{v_i,v_i}, \delta_{v_i, k}} {(\hat{A} H)}_{km} \\
-			& = D^{-1}_{v_i, v_i} (\hat{A} H)_{v_i, m} = D^{-1}_{{v}_i, v_i} \sum_k \hat{A}_{v_i, k} H_{k, m} = \sum_k \underbrace{\frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}}}_{\text{normalised}} H_{k, m}.
+		\overbrace{H'}^{\in \mathbb{R}^{N\times D}} & = \overbrace{D^{-1}}^{\in\mathbb{R}^{N\times N}} \overbrace{\hat{A}}^{\in \mathbb{R}^{N\times N}} \overbrace{H}^{\in\mathbb{R}^{N\times D}}
+			\Leftrightarrow H'_{v_i, m}  \\
+			 & = \sum_k \overbrace{D^{-1}_{v_i,k}}^{=D_{v_i,v_i}, \delta_{v_i, k}} {(\hat{A} H)}_{km} \\
+			& = D^{-1}_{v_i, v_i} (\hat{A} H)_{v_i, m} \\
+			& = D^{-1}_{{v}_i, v_i} \sum_k \hat{A}_{v_i, k} H_{k, m} \\
+			& = \sum_k \underbrace{\frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}}}_{\text{normalised}} H_{k, m}.
 	\end{split}
 \end{equation}
 
