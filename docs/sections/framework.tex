@@ -2,33 +2,29 @@ Our novel graph-based approach to model the dynamics of the agents' health state
 
 Our main propagation rule is based on the definition of a graph convolution shown in Eq.~\eqref{eq:graph_convolution} and reads as follows in component notation
 \begin{equation}
+	\label{eq:state_propagation}
 	h_{v_i, m}^{(l+1)}
 	=
 	\underbrace{
-		\sum_k \textcolor{red}{\frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}}} h_{k, m}^{(l)} \textcolor{blue}{\delta_{m, 1}}
-	}_{\text{Graph}}
+		\sum_k \frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}} h_{k, m}^{(l)} \delta_{m, 1}
+	}_{\text{\textcolor{red}{Graph}}}
 	+
 	\underbrace{
 		{(h_{v_i}^{(l)}\cdot T)}_m
-	}_{\text{Temporal}}
+	}_{\text{\textcolor{blue}{Temporal}}}
 \end{equation}
 with $m$ being the health state index ranging from $0$ to $2$, $\hat{A}_{v_i, k}^{(l)}$ infection-adjusted adjacency matrix component, $\delta$ the Kronecker delta and $T$ as temporal transition matrix.
 
-This propagation rule is based on the following aspects:
-
-\begin{itemize}
-	\item The propagation consists of two parts, first the graph contribution and second the temporal contribution. While the former captures the dynamics of infections based on the social contacts between agents, the former ensures that an infected agent heals over time and becomes resistant against the Corona virus.
-\end{itemize}
+The propagation consists of two parts, first the graph contribution and second the temporal contribution. While the former captures the dynamics of infections based on the social contacts between agents, the former ensures that an infected agent heals over time and becomes resistant against the Corona virus. Figure~\ref{fig:state_propagation} visualises the propagation rule and the two subsequent sections explain the terms in greater detail.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.4\columnwidth]{img/state_propagation.pdf}
-	\caption{Example graph.}
-	\label{fig:propagation}
+	\includegraphics[width=0.8\columnwidth]{img/state_propagation.pdf}
+	\caption{Visualisation of propagation rule from equation~\eqref{eq:state_propagation}. The blue connection visualises the temporal term and the red connections visualise the graph term. The dashed red line is does not contribute to the graph term as the two nodes are not connected according to $\hat{A}(l)$.}
+	\label{fig:state_propagation}
 \end{figure}
 
-
-\subsubsection{Explanation of the graph contribution term}
+\subsection{Explanation of the graph contribution term}
 The graph contribution models how infected agents spread the disease through contacts with susceptible agents.
 
 \begin{equation}
