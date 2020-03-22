@@ -23,6 +23,10 @@ These informations should be utilized to slow down the pandemic.
 
 This package was created within the #WirVsVirus Hackathon of the German government and is Work in Progress!
 
+Find more Information here:
+
+[![Our 2 Minute Pitch Video](http://img.youtube.com/vi/XJfh6adtw7g/0.jpg)](https://www.youtube.com/watch?v=XJfh6adtw7g)
+
 ## Install
 
 - set up conda env with environment.yml
