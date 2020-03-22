@@ -1,6 +1,32 @@
-- novel graph-based approach to
+Our novel graph-based approach to model the dynamics of the agents' health states incorporates communal effects and temporal decease effects through a graph contribution and an individual health contribution term, respectively.
 
-- To accurately model the disease, there is graph contribution and an individual health contribution.
+Our main propagation rule is based on the definition of a graph convolution shown in Eq.~\eqref{eq:graph_convolution} and reads as follows in component notation
+\begin{equation}
+	h_{v_i, m}^{(l+1)}
+	=
+	\underbrace{
+		\sum_k \textcolor{red}{\frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}}} h_{k, m}^{(l)} \textcolor{blue}{\delta_{m, 1}}
+	}_{\text{Graph}}
+	+
+	\underbrace{
+		{(h_{v_i}^{(l)}\cdot T)}_m
+	}_{\text{Temporal}}
+\end{equation}
+with $m$ being the health state index ranging from $0$ to $2$, $\hat{A}_{v_i, k}^{(l)}$ infection-adjusted adjacency matrix component, $\delta$ the Kronecker delta and $T$ as temporal transition matrix.
+
+This propagation rule is based on the following aspects:
+
+\begin{itemize}
+	\item The propagation consists of two parts, first the graph contribution and second the temporal contribution. While the former captures the dynamics of infections based on the social contacts between agents, the former ensures that an infected agent heals over time and becomes resistant against the Corona virus.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\columnwidth]{img/state_propagation.pdf}
+	\caption{Example graph.}
+	\label{fig:propagation}
+\end{figure}
+
 
 \subsubsection{Explanation of the graph contribution term}
 The graph contribution models how infected agents spread the disease through contacts with susceptible agents.
@@ -61,25 +87,3 @@ The temporal update rule based on the health status thus becomes:
 \begin{equation}
 H^{(l+1)} = H^{(l)} T
 \end{equation}
-
-\subsubsection{Joint Model}
-
-Our main propagation rule is based on the definition of a graph convolution shown in Eq.~\eqref{eq:graph_convolution} and reads as follows in component notation
-\begin{equation}
-h_{v_i, m}^{(l+1)}
-=
-\underbrace{
-	\sum_k \textcolor{red}{\frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}}} h_{k, m}^{(l)} \textcolor{blue}{\delta_{m, e_I}}
-}_{\text{Graph}}
-+
-\underbrace{
-	{(h_{v_i}^{(l)}\cdot T)}_m
-}_{\text{Temporal}}
-\end{equation}
-with $m$ being the index of the health state.
-
-This propagation rule is based on the following aspects:
-
-\begin{itemize}
-	\item The propagation consists of two parts, first the graph contribution and second the temporal contribution. While the former captures the dynamics of infections based on the social contacts between agents, the former ensures that an infected agent heals over time and becomes resistant against the Corona virus.
-\end{itemize}
