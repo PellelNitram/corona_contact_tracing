@@ -13,11 +13,11 @@ These policies guide a governments' and societies' response to the spread of COV
 An optimal policy always keeps the infection counts below the medical systems' capacity and the total number of infections as small as possible.
 % not much real data on this.
 Mathematically speaking we want to minimize the sum of all future infections
-\begin{equation}
+\begin{equation}\label{eq:number-of-infected}
 	\min \sum_{\forall t} N^{(t)}_i
 \end{equation}
 whilst
-\begin{equation}
+\begin{equation}\label{eq:cap-constraint}
 	N^{(l)}_i \leq N_{limit}, \forall t
 \end{equation}
 
@@ -36,10 +36,9 @@ All non pharmaceutical interventions can be understood as some kind of edge remo
 Formally speaking, the square matrix $C \in \mathbb{B}$ with dimensions $N \times N$ models desirable edge cancellations.
 This is the policy, which will be optimized.
 To avoid the trivial solution of $C=0$, the cancellation of all edges, we also want to minimize the the number of cancellations
-\begin{equation}
+\begin{equation}\label{eq:cancellations}
 	\min_{C} -\sum_i \sum_j C_{ij}
 \end{equation}
-
 
 Note, that this matrix does not have to know the edges of a future time step, it only expresses which edges must not exist.
 It is multiplied element-wise onto the adjacency matrix $A$ to obtain the adjacency matrix with applied cancellations $\bar{A} = A \odot C$.
@@ -47,9 +46,12 @@ It is multiplied element-wise onto the adjacency matrix $A$ to obtain the adjace
 % Future Work: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
 % Future Work: This only takes the current time step into account but it would be desirable to look even further into the future.
 
-\subsubsection{Test Prioritization}
-When tests are limited, they should be used to discover as much as possible about the health state of the overall population.
-This in turn allows to reduce the $R_0$ value in further time steps as edge cutting becomes more efficient.
+To obtain an optimal cancellation policy one thus must jointly minimize \cref{eq:number-of-infected,eq:cancellations} whilst fulfilling \cref{eq:cap-constraint}.
+
+\subsubsection{Test Prioritization (TP)}
+When tests are limited, we argue that they should be used to discover as much as possible about the health state of the overall population.
+This in turn allows edge cutting to become more efficient.
+Currently there are only rough medical-based guidelines who should be tested and who should not.
 
 Lets assume there are $t_{\text{max}}$ tests per time step.
 A test reveals the true health state of an individual (ignoring false negatives and false positives)
