@@ -2,6 +2,10 @@
 
 - re-model current strategies: doing nothing, social distancing, isolation.
 
+In the following we will present two extensions to the above methods.
+First we demonstrate a baysian approach to estimate the populations' health stte.
+Second we show how the above methods could be utilized to derive disease containment policies.
+
 \subsection{Baysian way of estimating the Probabilities}
 
 A major drawback of our analysis is that we only take fixed disease states of individuals into account, i.e either susceptible, infected or recovered. However, in real live, due to the lack of data, these states are mostly unknown and have to be estimated by a probability distribution. If we model these probabilities based on detailed assumptions, we can use Bayes' posterior probability to update these distributions based on the individual interaction of people. Thus, we define $X$ as the random variable that represents the state of a single individual. It can be assumed, that $X$ is well approximated by the multinomail distribution ($n\gg1$):
@@ -78,7 +82,7 @@ To obtain an optimal cancellation policy one thus must jointly minimize \cref{eq
 
 \subsubsection{Test Prioritization (TP)}
 When tests are limited, we argue that they should be used to discover as much as possible about the health state of the overall population.
-This in turn allows edge cutting to become more efficient.
+This in turn allows non pharmaceutical interventions such as school cancellations to become more efficient.
 Currently there are only rough medical-based guidelines who should be tested and who should not.
 
 Lets assume there are $t_{\text{max}}$ tests per time step.
