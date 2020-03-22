@@ -13,6 +13,7 @@
 .*.lb
 docs/algorithm_notes.pdf
 corona_contact_tracing.pdf
+main.pdf
 *.gz
 
 # Byte-compiled / optimized / DLL files
