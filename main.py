@@ -36,7 +36,6 @@ for t in tqdm(range(time_start, time_end+1)):
 
     # wip accelerated data structure
     kdtree = KDTree(current_data[["x","y"]])
-    kdtree.query_ball_point([6,10],r=.5)
 
     try:
         # use square form of pairwise distances and add diagonal to it, to avoid self matches
@@ -60,16 +59,20 @@ for t in tqdm(range(time_start, time_end+1)):
 # Work in Progress!
 # create matrices in numpy
 beta = 0.05 # this is a guess of beta
-infection_matrix = np.array([[0,0,0],[beta,0,0],[0,0,0]])
+infection_matrix = np.array([[0   ,0 ,0],
+                             [beta,0 ,0],
+                             [0   ,0 ,0]])
 
 gamma = 0.04 # this is a guess of gamma
-health_transition = np.array([[1,0,0],[0, 1-gamma, gamma],[0,0,1]])
+health_transition = np.array([[1,    0   ,   0  ],
+                              [0, 1-gamma, gamma],
+                              [0,    0   ,   1  ]])
 
 # adjacency matrix from contacts
 H = np.full((number_of_agents,3), 1/3)
 H_prev = H
 for t in tqdm(range(time_start, time_end+1)):
-    
+
     adjacencies = np.array(contacts[contacts["t"] == t][["agent_a", "agent_b"]])
     adj_matrix = np.zeros((number_of_agents,number_of_agents))
     for adj in adjacencies:
@@ -77,7 +80,7 @@ for t in tqdm(range(time_start, time_end+1)):
 
     # equation 4 BUG: this does not actually implement equation 4
     infection_adj_matrix = adj_matrix * (np.matmul(np.matmul(H_prev, infection_matrix),H_prev.T) + np.matmul(np.matmul(H_prev, infection_matrix),H_prev.T)) / beta
-    
+
     # temporal
     H_temporal = np.matmul(H,health_transition)
 
