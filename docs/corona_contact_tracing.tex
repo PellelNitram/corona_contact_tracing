@@ -1,6 +1,6 @@
 % !TeX root = ./algorithm_notes.tex
 % chktex-file 46
-% !TeX spellcheck = en-US
+% !TeX spellcheck = en-GB
 % !TeX encoding = utf8
 
 
@@ -16,6 +16,7 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{csquotes}
+\usepackage{cleveref}
 \usepackage[american]{babel}
 \usepackage[babel=true, protrusion=alltext-nott, final]{microtype}
 \usepackage[nodayofweek]{datetime}
@@ -48,11 +49,11 @@
 	To mirror a real world scenario the health status of agents is only partially observed through tests.
 
 	Next we develop a graph convolutional approach to predict the health status of all agents in this simulation.
-	It uses past contacts as well as oberved health information to derive this prediction.
+	It uses past contacts as well as observed health information to derive this prediction.
 	It is able to deal with partial data such as missing locations and missing health status, as it is a probabilistic approach.
 	
 	Lastly, this prediction can be used to derive measures to reduce the diseases' spread.
-	We propose to find a optimal trade of between removing the least amount of edges in said graph (e.g. through quarantine, social distancing, etc.) and limiting the spread of the disease.
+	We propose to find a optimal trade of between removing the least amount of edges in said graph (e.g.\ through quarantine, social distancing, etc.) and limiting the spread of the disease.
 	% Such trade of could be found with minimal cut algorithms.
 	Opposed to classical non-pharmaceutical intervention methods such as contact tracing, our approach directly identifies the nodes with the greatest potential to accelerate the diseases' spread in the network.
 	
@@ -62,25 +63,25 @@
 \section{Algorithm notes}
 
 \subsection{SIR Model}
-Our basic stochastic SIR model relies on the assumptions that every person in an environment can be modeled as a point value, which has a location (i.e GPS coordinates) and an infection state. These states can be either \textit{susceptible} (S), \textit{infected} (I), \textit{recovered} (R) or in advanced models also \textit{under quarantine} (Q) or \textit{dead} (D). All individuals, here called agents, have a probability (here called diffusion rate $d$ to make a step per time step on a predefined grid. In the case, that some agents meet at the same location, disease spreading can occur. An infected agent spreads the disease with probability $\beta$ to all the agents in its close vicinity (same location on the grid). Furthermore recovery is covered by taking a recovery rate into account, i.e a probability $\gamma$ to recover from the disease per time step. If an infected agent recovers from the disease, the state of the agent changes from \textit{infected} to \textit{recovered}, which is definite (no double infections). The process ends, when no infected agents are left.
+Our basic stochastic SIR model relies on the assumptions that every person in an environment can be modeled as a point value, which has a location (i.e.\ GPS coordinates) and an infection state. These states can be either \textit{susceptible} (S), \textit{infected} (I), \textit{recovered} (R) or in advanced models also \textit{under quarantine} (Q) or \textit{dead} (D). All individuals, here called agents, have a probability (here called diffusion rate $d$ to make a step per time step on a predefined grid. In the case, that some agents meet at the same location, disease spreading can occur. An infected agent spreads the disease with probability $\beta$ to all the agents in its close vicinity (same location on the grid). Furthermore recovery is covered by taking a recovery rate into account, i.e a probability $\gamma$ to recover from the disease per time step. If an infected agent recovers from the disease, the state of the agent changes from \textit{infected} to \textit{recovered}, which is definite (no double infections). The process ends, when no infected agents are left.
 \begin{center}
     Susceptibles $\overset{\beta}{\longrightarrow}$ Infected $\overset{\gamma}{\longrightarrow}$ Recovered.
 \end{center}
 
-An example of a early model state is shown in Figure \ref{fig:1}
+An example of a early model state is shown in Figure~\ref{fig:1}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\linewidth]{initial_setup.png}
-    \caption{Early state of SIR model, blue dots = susceptibles, red dots = infected agents, green dots = Recovered agents}
+    \caption{Early state of SIR model, blue dots = susceptibles, red dots = infected agents, green dots = Recovered agents}%
     \label{fig:1}
 \end{figure}
 
-In this case, 1000 agents were initialized on a 100 by 100 grid, where a certain amount of infected agents were introduced as a seed. Letting the agents perform random walks on the grid (maximally one step each time step with probability $d$), and letting the model converge, the results in figure \ref{fig:2} can be observed.
+In this case, 1000 agents were initialized on a 100 by 100 grid, where a certain amount of infected agents were introduced as a seed. Letting the agents perform random walks on the grid (maximally one step each time step with probability $d$), and letting the model converge, the results in figure~\ref{fig:2} can be observed.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{1_1000_agents}
-    \caption{Plot of the proportions of susceptible (blue), infected (red) and recovered (green) individuals in each state over time.}
+    \caption{Plot of the proportions of susceptible (blue), infected (red) and recovered (green) individuals in each state over time.}%
     \label{fig:2}
 \end{figure}
 
@@ -98,7 +99,7 @@ The definition of a graph convolution~\cite{Kipf2017SemiSupervisedCW} for here i
 	h_{v_i}^{(l+1)} = \sum_{j\in A(i)} h_{v_j}^{(l)}
 \end{equation}
 
-with feature vector $h$ of node $i$ from iteration $(l)$ to $(l+1)$. This formulation is equivalent to the matrix formulation $h^{(l+1)} = A h^{(l)}$ with $A$ as adjacency matrix as shown in section \ref{sec:consistency}. We consider here adjacency matrices without diagonal elements.
+with feature vector $h$ of node $i$ from iteration $(l)$ to $(l+1)$. This formulation is equivalent to the matrix formulation $h^{(l+1)} = A h^{(l)}$ with $A$ as adjacency matrix as shown in \cref{sec:consistency}. We consider here adjacency matrices without diagonal elements.
 
 Our main propagation rule is based on the definition of a graph convolution shown in Eq.~\eqref{eq:graph_convolution} and reads as follows in component notation
 \begin{equation}
@@ -109,7 +110,7 @@ Our main propagation rule is based on the definition of a graph convolution show
 	}_{\text{Graph}}
 	+
 	\underbrace{
-		(h_{v_i}^{(l)}\cdot T)_m
+		{(h_{v_i}^{(l)}\cdot T)}_m
 	}_{\text{Temporal}}
 \end{equation}
 
@@ -130,7 +131,7 @@ This propagation rule is based on the following aspects:
 		\item The Kronecker delta, as shown in blue, ensures that only the I feature is added as this is the only one that matters during social contacts between agents.
 		\item The infection-adjusted adjacency matrix $\hat{A}$ is constructed from $A$ and $I$ which are the regular continuous adjacency matrix and the infection matrix, respectively. These three quantities are explained in the following:
 		\begin{itemize}
-			\item The adjacency matrix $A$ is time dependent, $A^{(l)}$, and inferred from data. In our use case, $A_{ij} = \frac{1}{dist(v_i, v_j)+\epsilon}$, hence $A_{ij}$ is large when persons $i$ and $j$ have been in contact. $\epsilon$ serves as regularisation for small distances.
+			\item The adjacency matrix $A$ is time dependent, $A^{(l)}$, and inferred from data. In our use case, $A_{ij} = \frac{1}{dist(v_i, v_j)+\epsilon}$, hence $A_{ij}$ is large when persons $i$ and $j$ have been in contact. $\epsilon$ serves as regularization for small distances.
 			\item The infection matrix is constructed as
 			\begin{equation}
 				I =
@@ -147,7 +148,7 @@ This propagation rule is based on the following aspects:
 			\begin{equation}
 				\hat{A}_{ij} = A_{ij}\cdot \frac{ h_{v_1}^T I h_{v_2} + h_{v_2}^T I h_{v_1} }{\beta}.
 			\end{equation}
-			The weighted scalar product of the health states of agents $i$ and $j$ is used to evaluate whether the edge is relevant for the infection dynamics. Only when an infected person and a susceptible have contact, the edge $A_{ij}$ should be considered, otherwise it should be dropped.	The sum in the denominator comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $\beta$ normalises the factor to one to ensure $\hat{A}_{ij} \in [0, 1]$. Since $I$ is not symmetric, $p_a$ is a proper normalisation because the sum is in $\{0, p_a\}$. Note that the fraction has the desired properties for pure $S$-, $I$- and $R$-persons.
+			The weighted scalar product of the health states of agents $i$ and $j$ is used to evaluate whether the edge is relevant for the infection dynamics. Only when an infected person and a susceptible have contact, the edge $A_{ij}$ should be considered, otherwise it should be dropped.	The sum in the denominator comes from the fact that both, agent $i$ and $j$, can act as host during a contact. The division by $\beta$ normalises the factor to one to ensure $\hat{A}_{ij} \in [0, 1]$. Since $I$ is not symmetric, $p_a$ is a proper normalization because the sum is in $\{0, p_a\}$. Note that the fraction has the desired properties for pure $S$-, $I$- and $R$-persons.
 		\end{itemize}
 	\end{itemize}
 	\item Explanation of the temporal term:
@@ -185,7 +186,7 @@ All non pharmaceutical interventions (NPI) can be understood as some kind of edg
 	\item Social distancing removes some edges of of many individuals.
 	\item Cancellation of large events remove many edges of many individuals.
 \end{itemize}
-As a first step analyze the effect of these measures in $R_0$.
+As a first step analyse the effect of these measures in $R_0$.
 $R_0$ models how many people are infected by a single infected person.
 It is crucial to constrain $R_0$ below zero to avoid exponential growth in the number of infected individuals.
 
@@ -224,7 +225,7 @@ The test assignment $T$ with dimension $N$ is a binary variable describing which
 
 \section{Appendix}
 
-\subsection{Consistency of notations}
+\subsection{Consistency of notations}%
 \label{sec:consistency}
 
 Using the notation from the blog and the paper, including $H'\in\mathbb{R}^{N\times D}$, $A\in\mathbb{R}^{N\times N}$, $H\in\mathbb{R}^{N\times D}$, the propagation rule is:
@@ -242,7 +243,7 @@ is equivalent to
 	\end{split}
 \end{equation}
 
-where $l'$ takes all $A_{v_i,l}=1$, i.e. neighbours, into account.
+where $l'$ takes all $A_{v_i,l}=1$, i.e.\ neighbours, into account.
 
 Hence, I do understand that the notations are equal.
 
@@ -256,8 +257,8 @@ Use the knowledge from the blog post to write:
 	\begin{split}
 		\overbrace{H'}^{\in \mathbb{R}^{N\times D}} 
 			& = \overbrace{D^{-1}}^{\in\mathbb{R}^{N\times N}} \overbrace{\hat{A}}^{\in \mathbb{R}^{N\times N}} \overbrace{H}^{\in\mathbb{R}^{N\times D}}
-			\Leftrightarrow H'_{v_i, m} = \sum_k \overbrace{D^{-1}_{v_i,k}}^{=D_{v_i,v_i}, \delta_{v_i, k}} (\hat{A} H)_{km} \\
-		& = D^{-1}_{v_i, v_i} (\hat{A} H)_{v_i, m} = D^{-1}_{v_i, v_i} \sum_k \hat{A}_{v_i, k} H_{k, m} = \sum_k \underbrace{\frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}}}_{\text{normalised}} H_{k, m}.
+			\Leftrightarrow H'_{v_i, m} = \sum_k \overbrace{D^{-1}_{v_i,k}}^{=D_{v_i,v_i}, \delta_{v_i, k}} {(\hat{A} H)}_{km} \\
+			& = D^{-1}_{v_i, v_i} (\hat{A} H)_{v_i, m} = D^{-1}_{{v}_i, v_i} \sum_k \hat{A}_{v_i, k} H_{k, m} = \sum_k \underbrace{\frac{\hat{A}_{v_i, k}}{\sum_j \hat{A}_{v_i, j}}}_{\text{normalised}} H_{k, m}.
 	\end{split}
 \end{equation}
 
