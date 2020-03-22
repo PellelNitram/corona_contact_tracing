@@ -32,7 +32,7 @@ If we now assume that two individuals with unknown state meet at the same locati
 \end{equation}
 If the state of an individual in this group known, due to a previous test for example, the state collapses into the right state (e.g $(0,1,0)$ for an infected individual).
 
-Based on this state, we can define the graph based Bayesian update rules, where the infection rate $\beta$ is taken into account, as followed.
+Based on this state, we can define the graph based Bayesian update rules, where the infection rate $\beta$ is taken into account, as followed \cite{rice2006mathematical}:
 
 \begin{align}
     \alpha_{S,i}^{(t+1)\prime} &= \alpha_{1,i}^{(t)\prime}\\
@@ -45,13 +45,13 @@ Based on this state, we can define the graph based Bayesian update rules, where 
 The update is only done for the $\alpha_I$ as only the possible infection of an individual can change the infection state of another individual.
 
 However, this model still does not take the potential recovery into account. We can add this by looking at the estimated Values of $p_{S,i}^{(t+1)}$, $p_{I,i}^{(t+1)}$, and $p_{R,i}^{(t+1)}$ 
-\begin{align*}
-    \operatorname{E}[p_{S,i}^{(t+1)}] &= \frac{\alpha_{S,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}} &= \frac{\alpha_{S,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)\prime}} \\
-    \operatorname{E}[p_{I,i}^{(t+1)}]&= \frac{\alpha_{I,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}}-\gamma &=\frac{\alpha_{I,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)}} \\
-    \operatorname{E}[p_{R,i}^{(t+1)}]&= \frac{\alpha_{R,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}}+\gamma &= \frac{\alpha_{R,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)}}
-\end{align*}
+\begin{alignat}{2}
+    \operatorname{E}[p_{S,i}^{(t+1)}] &= \frac{\alpha_{S,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}} & &= \frac{\alpha_{S,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)\prime}} \\
+    \operatorname{E}[p_{I,i}^{(t+1)}]&= \frac{\alpha_{I,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}}-\gamma & &=\frac{\alpha_{I,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)}} \\
+    \operatorname{E}[p_{R,i}^{(t+1)}]&= \frac{\alpha_{R,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}}+\gamma & &= \frac{\alpha_{R,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)}}
+\end{alignat}
 
-Based on this equation system, we can calculate $\alpha_{k,i}^{(t+1)}$ for $k\in{S,I,R}$. Needless to say, that if the expectation value of $p_{I,i}^{(t+1)}$ or $p_{R,i}^{(t+1)}$ return a value smaller than 0 or larger than 1, we assume $\gamma=0$ and therefore $\alpha_{k,i}^{(t+1)\prime}=\alpha_{k,i}^{(t+1)}$.
+Based on this equation system, we can calculate $\alpha_{k,i}^{(t+1)}$ for $k\in{S,I,R}$. Needless to say, that if the expectation value of $p_{I,i}^{(t+1)}$ or $p_{R,i}^{(t+1)}$ return a value smaller than 0 or larger than 1, we assume $\gamma=0$ and therefore $\alpha_{k,i}^{(t+1)\prime}=\alpha_{k,i}^{(t+1)}$. Something similar may be found in \cite{stojanovic2019bayesian}
 
 
 
