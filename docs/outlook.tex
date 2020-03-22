@@ -34,6 +34,11 @@ To optimally limit the spread of the disease, we seek to minimize the number of 
 \begin{equation}
 	\max_{C} \norm{C}_0\text{, s.t. }R_0 < 1
 \end{equation}
+Alternatively
+
+\begin{equation}
+	\max_{C} \norm{C}_0\text{, s.t. } \norm{H^{(t+1)}\mid_{m=1}}_{0} <= KapaLimit
+\end{equation}
 
 % Future Work: This would be more powerful, if there would be some different kinds of edges (social, work, education, large events, etc.)\\
 % Future Work: This only takes the current time step into account but it would be desirable to look even further into the future.
@@ -45,7 +50,7 @@ This in turn allows to reduce the $R_0$ value in further time steps as edge cutt
 Lets assume there are $t_{\text{max}}$ tests per time step.
 A test reveals the true health state of an individual (ignoring false negatives and false positives)
 \begin{equation}
-	h^{(t)} \xrightarrow{\text{test}} h^{(t+1)} \in \{\vec{e}_0, \vec{e}_1, \vec{e}_2 \}
+	h_{{v}_i}^{(t)} \xrightarrow{\text{test}} h_{{v}_i}^{(t+1)} \in \{\vec{e}_0, \vec{e}_1, \vec{e}_2 \}
 \end{equation}
 
 The test assignment $T$ with dimension $N$ is a binary variable describing which individuals should be tested.

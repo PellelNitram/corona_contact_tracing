@@ -56,6 +56,7 @@ Our main propagation rule is based on the definition of a graph convolution show
 		{(h_{v_i}^{(l)}\cdot T)}_m
 	}_{\text{Temporal}}
 \end{equation}
+with $m$ being the index of the health state.
 
 This propagation rule is based on the following aspects:
 
@@ -86,7 +87,7 @@ This propagation rule is based on the following aspects:
 				=
 				(I_{ij})_{i,j}
 			\end{equation}
-			with $i$ as the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $\beta$ denotes the probability of infection  after contact (also known as attack rate). $\alpha := 0$ models the probability of being reinfected, which we assume to be zero based upon current medical \todo{cite!}research.
+			with $i$ as the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $\beta$ denotes the probability of infection  after contact (also known as attack rate). $\alpha$ models the probability of being reinfected, which we assume to be zero ($\alpha=0$) based upon current medical \todo{cite!}research.
 			\item $\hat{A}$, with $\hat{A}_{ij}\in [0, 1]$, is the adjacency matrix that takes the infection interactions into account and is computed as follows
 			\begin{equation}
 				\hat{A}_{ij} = A_{ij}\cdot \frac{ h_{v_1}^T I h_{v_2} + h_{v_2}^T I h_{v_1} }{\beta}.
