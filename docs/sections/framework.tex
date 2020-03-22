@@ -49,7 +49,7 @@ The infection-adjusted adjacency matrix $\hat{A}$ is constructed from $A$ and $I
 	=
 	(I_{ij})_{i,j}
 	\end{equation}
-	with $i$ as the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $\beta$ denotes the probability of infection  after contact (also known as attack rate). $\alpha$ models the probability of being reinfected, which we assume to be zero ($\alpha=0$) based upon current medical \todo{cite!}research.
+	with $i$ as the index of the host state and $j$ is the index of the contact person state. The states that we consider here are ordered as follows: susceptible, infected, recovered. $\beta$ denotes the probability of infection  after contact (also known as attack rate). $\alpha$ models the probability of being reinfected, which we assume to be zero ($\alpha=0$) based upon current medical~\cite{Bao2020.03.13.990226}.
 	\item $\hat{A}$, with $\hat{A}_{ij}\in [0, 1]$, is the infection-adjusted adjacency matrix that takes the infection interactions into account and is computed as follows
 	\begin{equation}
 	\hat{A}_{ij} = A_{ij}\cdot \frac{ h_{v_1}^T I h_{v_2} + h_{v_2}^T I h_{v_1} }{\beta}.
