@@ -1,3 +1,8 @@
+% !TeX root = ./main.tex
+% chktex-file 46
+% !TeX spellcheck = en-GB
+% !TeX encoding = utf8
+
 \subsection{SIR Model}
 
 For testing and data generation we have implemented a SIR Model using Python. The code can be found in the given Github repository.\newline
@@ -23,7 +28,7 @@ With the above stated parameters ($d=0.8$, $\beta=0.6$, $\gamma=0.01$), the dise
 
 
 \subsection{Improving the Simulation}
-Random walk is commonly used for simple Simulations. However, this movement pattern does not represent the daily routine of the majority of citizens. It  is more likely that the major part of the population moves around their hometown and travels small distances which leads to clustering of the whole population. To improve the simulation, the agents are split into two groups. One group moves random walk like. This group represents e.g. service providers and delivery services. The other group moves around given points. This movement is implemented using polar coordinates with random radius and random angle. The movement pattern of the two groups is illustrated in Figure \ref{fig:movementPattern}. 
+Random walk is commonly used for simple Simulations. However, this movement pattern does not represent the daily routine of the majority of citizens. It  is more likely that the major part of the population moves around their hometown and travels small distances which leads to clustering of the whole population. To improve the simulation, the agents are split into two groups. One group moves random walk like. This group represents e.g. service providers and delivery services. The other group moves around given points. This movement is implemented using polar coordinates with random radius and random angle. The movement pattern of the two groups is illustrated in Figure~\ref{fig:movementPattern}. 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\linewidth]{img/movementPattern.png}
@@ -31,7 +36,7 @@ Random walk is commonly used for simple Simulations. However, this movement patt
 	\label{fig:movementPattern}
 \end{figure}
 
-With these two groups, new features such as multiple outbreaks in different clusters can be observed. An example of the improved model is shown in Figure \ref{fig:multipleOutbreaks}. In this case, 3000 agents were initialized on a 200 by 200 grid with the infection parameters $\beta=0.6$ and $\gamma = 0.01$. $70\%$ of the agents move in clusters. The infection waves at $t = 40$, $t = 210$ and $t= 650$ can be explained by the infection of a new cluster. The second infection wave is illustrated in Figure \ref{fig:clusterInfection}. The whole simulation can be found  as a video \url{https://youtu.be/c7ehtN-1n9w}.
+With these two groups, new features such as multiple outbreaks in different clusters can be observed. An example of the improved model is shown in Figure~\ref{fig:multipleOutbreaks}. In this case, 3000 agents were initialized on a 200 by 200 grid with the infection parameters $\beta=0.6$ and $\gamma = 0.01$. $70\%$ of the agents move in clusters. The infection waves at $t = 40$, $t = 210$ and $t= 650$ can be explained by the infection of a new cluster. The second infection wave is illustrated in Figure~\ref{fig:clusterInfection}. The whole simulation can be found  as a video \url{https://youtu.be/c7ehtN-1n9w}.
 
 \begin{figure}[H]
 	\centering
@@ -46,7 +51,7 @@ With these two groups, new features such as multiple outbreaks in different clus
     \\[\smallskipamount]
     \includegraphics[width=.24\textwidth]{img/cluster210.pdf}\hfill
     \includegraphics[width=.24\textwidth]{img/cluster270.pdf}\hfill
-    \caption{Second infection wave from figure~\ref{fig:multipleOutbreaks}. Blue: susceptibles, red: infected, green: recovered. $t = 190$ cluster gets infected (top left), $t = 200$ disease spreads (top right ), $t = 210$ most of the cluster is infected (bottom left) and $t = 270$ cluster recovers (bottom right).}%
+    \caption{Second infection wave from figure~\ref{fig:multipleOutbreaks}. Blue: susceptibles, red: infected, green: recovered. $t = 190$ cluster gets infected (top left), $t = 200$ disease spreads (top right), $t = 210$ most of the cluster is infected (bottom left) and $t = 270$ cluster recovers (bottom right).}%
     \label{fig:clusterInfection}
     
 \end{figure}

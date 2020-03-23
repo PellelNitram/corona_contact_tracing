@@ -1,3 +1,8 @@
+% !TeX root = ./main.tex
+% chktex-file 46
+% !TeX spellcheck = en-GB
+% !TeX encoding = utf8
+
 Our novel graph-based approach to model the dynamics of the agents' health states incorporates communal effects and temporal decease effects through a graph contribution and an individual health contribution term, respectively.
 
 Our main propagation rule is based on the definition of a graph convolution shown in Eq.~\eqref{eq:graph_convolution} and reads as follows in component notation
@@ -20,7 +25,7 @@ The propagation consists of two parts, first the graph contribution and second t
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\columnwidth]{img/state_propagation.pdf}
-	\caption{Visualisation of propagation rule from equation~\eqref{eq:state_propagation}. The blue connection visualises the temporal term and the red connections visualise the graph term. The dashed red line is does not contribute to the graph term as the two nodes are not connected according to $\hat{A}(l)$.}
+	\caption{Visualisation of propagation rule from equation~\eqref{eq:state_propagation}. The blue connection visualises the temporal term and the red connections visualise the graph term. The dashed red line is does not contribute to the graph term as the two nodes are not connected according to $\hat{A}(l)$.}%
 	\label{fig:state_propagation}
 \end{figure}
 
@@ -29,7 +34,8 @@ The propagation consists of two parts, first the graph contribution and second t
 The graph contribution models how infected agents spread the disease through contacts with susceptible agents. This is modeled by the term
 
 \begin{equation}
-	(h_{v_i, m}^{(l+1)})_{\text{Graph}} = \sum_k \textcolor{cyan}{\frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}}} h_{k, m}^{(l)} \textcolor{orange}{\delta_{m, 1}}.
+	(h_{v_i, m}^{(l+1)})_{\text{Graph}} = 
+	\sum_k \textcolor{cyan}{\frac{\hat{A}_{v_i, k}^{(l)}}{\sum_j \hat{A}_{v_i, j}^{(l)}}} h_{k, m}^{(l)} \textcolor{orange}{\delta_{m, 1}}.
 \end{equation}
 
 A sum over all neighbouring agents' features $h_{k,m}^{(l)}$ is weighted by the normalised infection-adjusted graph connections as shown in cyan. The Kronecker delta, as shown in orange, ensures that only the I feature is added as this is the only one that matters during social contacts between agents.

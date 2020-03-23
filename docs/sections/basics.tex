@@ -1,3 +1,8 @@
+% !TeX root = ./main.tex
+% chktex-file 46
+% !TeX spellcheck = en-GB
+% !TeX encoding = utf8
+
 \subsection{Graphs and graph convolutions}
 
 Graphs are sets of nodes connected by edges, as shown in Fig.~\ref{fig:graph_example}
@@ -5,7 +10,7 @@ Graphs are sets of nodes connected by edges, as shown in Fig.~\ref{fig:graph_exa
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.4\columnwidth]{img/graph_example.pdf}
-	\caption{Example graph where nodes are individuals and edges are their contacts at time step $t$.}
+	\caption{Example graph where nodes are individuals and edges are their contacts at time step $t$.}%
 	\label{fig:graph_example}
 \end{figure}
 
@@ -16,7 +21,7 @@ We model partially infected populations as a graph, where each individual (inter
 	h_{v_i}^{(l+1)} = \sum_{j\in A(i)} h_{v_j}^{(l)}
 \end{equation}
 
-with $h_{v_i}^{(l)}$ denoting the feature vector of node $i$ of iteration $(l)$ and $A(i)$ as all neighbours of node $i$ as described by the adjacency matrix $A$. This formulation is equivalent to the matrix formulation $h^{(l+1)} = A h^{(l)}$ with $A$ as adjacency matrix as shown in \ref{sec:consistency}. We consider here adjacency matrices without diagonal elements.
+with $h_{v_i}^{(l)}$ denoting the feature vector of node $i$ of iteration $(l)$ and $A(i)$ as all neighbours of node $i$ as described by the adjacency matrix $A$. This formulation is equivalent to the matrix formulation $h^{(l+1)} = A h^{(l)}$ with $A$ as adjacency matrix as shown in~\ref{sec:consistency}. We consider here adjacency matrices without diagonal elements.
 
 Each agent $i$ is modeled by $D$ features, $h_{v_i} \in \mathbb{R}^D$. Therefore, the feature matrix, $h^{(l)}$, consists of all agents' features at time $(l)$ and is thereby of dimension $N\times D$ where there are $N$ agents in the population and each agent is described by $D$ features. A three dimensional feature space is used in this work, $D=3$, modeling three possible health states. The unit vectors of this space are interpreted as following:
 \begin{itemize}
