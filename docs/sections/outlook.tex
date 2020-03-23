@@ -11,50 +11,55 @@ Second we show how the above methods could be utilized to derive disease contain
 
 \subsection{Baysian way of estimating the Probabilities}
 
-A major drawback of our analysis is that we only take fixed disease states of individuals into account, i.e either susceptible, infected or recovered. However, in real live, due to the lack of data, these states are mostly unknown and have to be estimated by a probability distributions. If we model these probabilities based on detailed assumptions, we can use Bayes' posterior probability to update these distributions based on the individual interaction of people. Thus, we define $X$ as the random variable that represents the state of a single individual. It can be assumed, that $X$ is well approximated by the multinomial distribution ($n\gg1$):
+A major drawback of our analysis is that we only take fixed disease states of individuals into account, i.e either susceptible, infected or recovered. However, in real live, due to the lack of data, these states are mostly unknown and have to be estimated by probability distributions. If we model these probabilities based on detailed assumptions, we can use Bayes' posterior probability to update these distributions based on the individual interaction of people. Thus, we define $X$ as the random variable that represents the state of a single individual. It can be assumed, that $X$ is well approximated by the multinomial distribution ($n\gg1$):
 \begin{equation}
     X = \left(X_{S}, X_{I}, X_{R}\right) \sim \text{Mn}(n;p_S^{(t)},p_I^{(t)},p_R^{(t)})
 \end{equation}
-where $n$ is the population size, and $p_S^{(t)}$, $p_I^{(t)}$, and $p_R^{(t)}$ are the probability for an individual to be either in susceptible, an infected or a recovered state. These probabilities change over time as the disease progresses, while
+where $n$ is the population size, and $p_S^{(t)}$, $p_I^{(t)}$, and $p_R^{(t)}$ are the probability for an individual to be either in susceptible, an infected or recovered state. These probabilities change over time as the disease progresses, while
 
 \begin{equation}
-    p_S^{(t)}+p_I^{(t)}+p_R^{(t)}=1
+    p_S^{(t)}+p_I^{(t)}+p_R^{(t)}=1.
 \end{equation}
 
-As we can only estimate the probabilities $p_S^{(t)}$, $p_I^{(t)}$, and $p_R^{(t)}$ from samples of our population. Therefore, we assume that the probabilities are taken from a prior distribution, in this case the Dirichlet distribution:
+As we can only estimate the probabilities $p_S^{(t)}$, $p_I^{(t)}$, and $p_R^{(t)}$ from samples of our population with a certain error, we assume that the probabilities are realisations of a prior distribution, in this case the Dirichlet distribution:
 
 \begin{equation}
     \left(p_{S,i}^{(t)}, p_{I,i}^{(t)}, p_{R,i}^{(t)}\right) \sim \operatorname{Dir}\left(\alpha_{S,i}^{(t)}, \alpha_{I,i}^{(t)}, \alpha_{R,i}^{(t)}\right).
 \end{equation}
 
-The parameters $\alpha_{1,i}^{(0)}$, $\alpha_{2,i}^{(0)}$, and $\alpha_{3,i}^{(0)}$ can be estimated from $p_S^{(0)}$, $p_I^{(0)}$, and $p_R^{(0)}$ and are specific for each individual $i$.
+The pseudo-counts $\alpha_{1,i}^{(0)}$, $\alpha_{2,i}^{(0)}$, and $\alpha_{3,i}^{(0)}$ can be estimated from $p_S^{(0)}$, $p_I^{(0)}$, and $p_R^{(0)}$ and are equal for each individual $i$ at $t=0$. Because we have no additional prior information, we also choose $\sum_{i\in\{S,I,R\}}\alpha_i = 1$.
 
-If we now assume that two individuals with unknown state meet at the same location, an interaction occurs and we cannot neglect, that at least one of the individuals may carry the disease and may potentially infect the other. Therefore, we can assume, that each individual is present in an infectious superstate $\braket{x}$ where
+If we now assume that two individuals with unknown state meet at the same location, an interaction occurs and we cannot neglect, that at least one of the individuals may carry the disease and may potentially infect the other. Therefore, we assume, that each individual is present in an infectious superstate $\braket{x}$ where
 \begin{equation}
     \braket{x} = \left(\braket{x_{S,i}}, \braket{x_{I,i}}, \braket{x_{R,i}}\right) = \left(p_S^{(t)},p_I^{(t)},p_R^{(t)}\right)
 \end{equation}
 If the state of an individual in this group known, due to a previous test for example, the state collapses into the right state (e.g $(0,1,0)$ for an infected individual).
 
-Based on this state, we can define the graph based Bayesian update rules, where the infection rate $\beta$ is taken into account, as followed~\cite{rice2006mathematical}:
+Based on this either known or super positional state, we can define the graph based Bayesian update rule of the pseudo-counts, where the infection rate $\beta$ is also taken into account, as followed~\cite{rice2006mathematical}:
 
 \begin{align}
     \alpha_{S,i}^{(t+1)\prime} &= \alpha_{1,i}^{(t)\prime}\\
     \alpha_{I,i}^{(t+1)\prime} &= \alpha_{2,i}^{(t)\prime} + \beta \cdot
-    \sum_{j\in A_{v_i}}  x_{I,j}\\
+    \sum_{j\in A^{(t)}_{v_i}} A^{(t)}_{i,j} x_{I,j}\\
     \alpha_{R,i}^{(t+1)\prime} &= \alpha_{3,i}^{(t)\prime}\\
     \alpha_{0,i}^{(t+1)\prime} &= \alpha_{S,i}^{(t+1)\prime}+\alpha_{I,i}^{(t+1)\prime}+\alpha_{R,i}^{(t+1)\prime}
 \end{align}
 
-The update is only done for the $\alpha_I$ as only the possible infection of an individual can change the infection state of another individual.
+Important to notice is that the adjacent $A$ has to be normalized to $\operatorname{max}(A)=1$, where $A_{v_i,v_j}=1$ means a direct contact between individual $v_i$ and individual $v_j$.
+In this step, the update is only done for the $\alpha_I$, as only the possible infection of an individual can change the infection state of another individual.
 
-However, this model still does not take the potential recovery into account. We can add this by looking at the estimated Values of $p_{S,i}^{(t+1)}$, $p_{I,i}^{(t+1)}$, and $p_{R,i}^{(t+1)}$ 
+However, so far this model still does not take the potential recovery into account. We can add this by looking at the estimated Values of $p_{S,i}^{(t+1)}$, $p_{I,i}^{(t+1)}$, and $p_{R,i}^{(t+1)}$ 
 \begin{alignat}{2}
     \operatorname{E}[p_{S,i}^{(t+1)}] &= \frac{\alpha_{S,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}} & &= \frac{\alpha_{S,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)\prime}} \\
     \operatorname{E}[p_{I,i}^{(t+1)}]&= \frac{\alpha_{I,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}}-\gamma & &=\frac{\alpha_{I,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)}} \\
     \operatorname{E}[p_{R,i}^{(t+1)}]&= \frac{\alpha_{R,i}^{(t+1)\prime}}{\alpha_{0,i}^{(t+1)\prime}}+\gamma & &= \frac{\alpha_{R,i}^{(t+1)}}{\alpha_{0,i}^{(t+1)}}
 \end{alignat}
 
-Based on this equation system, we can calculate $\alpha_{k,i}^{(t+1)}$ for $k\in{S,I,R}$. Needless to say, that if the expectation value of $p_{I,i}^{(t+1)}$ or $p_{R,i}^{(t+1)}$ return a value smaller than 0 or larger than 1, we assume $\gamma=0$ and therefore $\alpha_{k,i}^{(t+1)\prime}=\alpha_{k,i}^{(t+1)}$. Something similar may be found in~\cite{stojanovic2019bayesian}
+Based on this equation system, we can calculate $\alpha_{k,i}^{(t+1)}$ for $k\in{S,I,R}$. Needless to say, that if the expectation value of $p_{I,i}^{(t+1)}$ or $p_{R,i}^{(t+1)}$ return a value smaller than 0 or larger than 1, we set $\gamma=0$ and therefore $\alpha_{k,i}^{(t+1)\prime}=\alpha_{k,i}^{(t+1)}$. Something similar may be found in~\cite{stojanovic2019bayesian}.
+
+We see here, that the probability for an individual to be in the susceptible state shrinks over time, the more contacts with people have been observed. Thus, if we set this individual into quarantine, the probabilities shift towards either the susceptible state or the recovered state. This is an early indicator, why it is necessary to put the whole population under quarantine in the case of a pandemic.
+
+We can now find an optimal test setup by applying tests to those individuals, who's unknown infection state introduce the most uncertainty to our estimation. Furthermore, we could even set individuals with a high probability to have the disease under quarantine, without testing them (which should be an urgent object of an ethical discussion).
 
 
 
