@@ -8,7 +8,6 @@ import random as rd
 
 def extractAgentFromSimulationData(agent):
     reader = csv.reader(open("SimulationData.csv"))
-    # reader = csv.reader(open(ticker), delimiter=",")
 
     csv_data_list = []
     csv_data_list.extend(reader)
@@ -16,61 +15,30 @@ def extractAgentFromSimulationData(agent):
     x = list()
     y= list()
     csv_data_list_transposed = np.transpose(csv_data_list)
-    #print(csv_data_list_transposed)
+
     print(len(csv_data_list_transposed[0][:]))
     for i in range(5, len(csv_data_list_transposed[0][:])):
-        #print(csv_data_list_transposed[0][i])
         if(int(csv_data_list_transposed[0][i]) == agent):
             x.append(int(csv_data_list_transposed[1][i]))
             y.append(int(csv_data_list_transposed[2][i]))
 
     return x,y
 
-def extractInfections():
-    reader = csv.reader(open("SimulationData.csv"))
-    csv_data_list = []
-    csv_data_list.extend(reader)
-    csv_data_list_transposed = np.transpose(csv_data_list)
-    t_max = 715
-    data = [[] for i in range(t_max)]
-    #print(len(csv_data_list_transposed[0][:]))
-    for i in range(1, len(csv_data_list_transposed[0][:])-1):
-        print(i)
-        if (int(csv_data_list_transposed[4][i]) == 2):
 
-            data[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[1][i]))
-            data[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[2][i]))
-            pass
-    return data
-
-def extractHealty():
-    reader = csv.reader(open("SimulationData.csv"))
-    csv_data_list = []
-    csv_data_list.extend(reader)
-    csv_data_list_transposed = np.transpose(csv_data_list)
-    t_max = 715
-    data = [[] for i in range(t_max)]
-    #print(len(csv_data_list_transposed[0][:]))
-    for i in range(1, len(csv_data_list_transposed[0][:])-1):
-        print(i)
-        if (int(csv_data_list_transposed[4][i]) == 0):
-            data[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[1][i]))
-            data[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[2][i]))
-            pass
-    return data
 
 def extractData():
     reader = csv.reader(open("SimulationData.csv"))
     csv_data_list = []
     csv_data_list.extend(reader)
     csv_data_list_transposed = np.transpose(csv_data_list)
-    t_max = int(len(csv_data_list_transposed[0][:])-1/1000)
+    t_max = int(csv_data_list_transposed[3][len(csv_data_list_transposed[0][:])-1])+1
+
     dataI = [[] for i in range(t_max)]
     dataH = [[] for i in range(t_max)]
     dataR = [[] for i in range(t_max)]
-    #print(len(csv_data_list_transposed[0][:]))
-    for i in range(1, len(csv_data_list_transposed[0][:])-1):
-        #print(i)
+
+    for i in range(1, len(csv_data_list_transposed[0][:])-2):
+
         if (int(csv_data_list_transposed[4][i]) == 0 or int(csv_data_list_transposed[4][i]) == 1  and rd.random() > 0.0):
             dataH[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[1][i]))
             dataH[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[2][i]))
@@ -79,17 +47,18 @@ def extractData():
             dataI[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[1][i]))
             dataI[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[2][i]))
         elif (int(csv_data_list_transposed[4][i]) == 3):
+            print(int(csv_data_list_transposed[3][i]))
             # print("i " + str(i) + "  " + str(int(csv_data_list_transposed[4][i])))
             dataR[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[1][i]))
             dataR[int(csv_data_list_transposed[3][i])].append(int(csv_data_list_transposed[2][i]))
         if(i == (len(csv_data_list_transposed[0][:])*0.9)):
             break
-    return dataH, dataI, dataR
+    return dataH, dataI, dataR, t_max
 
 
 def animateInfeciton():
-    healthyData, infectionData, recoveredData = extractData()
-    t_max = len(healthyData[0])
+    healthyData, infectionData, recoveredData, t_max = extractData()
+    print(t_max)
     xdataI, ydataI, xdataH, ydataH, xdataR, ydataR = [], [], [], [], [],[]
 
     fig, ax = plt.subplots()
@@ -121,10 +90,12 @@ def animateInfeciton():
 
 
 
-    ani = FuncAnimation(fig, update, frames=range(0,1180), fargs=[line1, line2],
+    ani = FuncAnimation(fig, update, frames=range(0,t_max), fargs=[line1, line2],
                       blit=False)
 
     plt.show()
+
+animateInfeciton()
 
 
 
